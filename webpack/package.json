@@ -3,9 +3,12 @@
   "devDependencies": {
     "babel-core": "^6.5.2",
     "babel-loader": "^6.2.3",
+    "bootstrap": "^3.3.6",
+    "bootswatch": "^3.3.6",
     "css-loader": "^0.23.1",
     "extract-text-webpack-plugin": "^1.0.1",
     "file-loader": "^0.8.5",
+    "jquery": "^2.2.0",
     "node-sass": "^3.4.2",
     "sass-loader": "^3.1.2",
     "style-loader": "^0.13.0",
