@@ -1,2 +1,5 @@
 [project]
 name = pytest-tricks
+
+[packages]
+lektor-webpack-support = 0.1
