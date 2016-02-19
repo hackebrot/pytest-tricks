@@ -1,6 +1,9 @@
 <!doctype html>
 <meta charset="utf-8">
-<link rel="stylesheet" href="{{ '/static/style.css'|url }}">
+<link rel="stylesheet" href="{{
+  '/static/gen/styles.css'|asseturl }}">
+<script type=text/javascript src="{{
+  '/static/gen/app.js'|asseturl }}" charset="utf-8"></script>
 <title>{% block title %}Welcome{% endblock %} — pytest-tricks</title>
 <body>
   <header>
