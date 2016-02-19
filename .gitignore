@@ -60,3 +60,7 @@ target/
 
 #Ipython Notebook
 .ipynb_checkpoints
+
+# Add webpack and lektor files
+webpack/node_modules
+assets/static/gen
