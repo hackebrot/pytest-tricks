@@ -1,33 +1,23 @@
 <!doctype html>
 <meta charset="utf-8">
-<link rel="stylesheet" href="{{
-  '/static/gen/styles.css'|asseturl }}">
-<script type=text/javascript src="{{
-  '/static/gen/app.js'|asseturl }}" charset="utf-8"></script>
+<link rel="stylesheet" href="{{ '/static/gen/styles.css'|asseturl }}">
+<script type=text/javascript src="{{ '/static/gen/app.js'|asseturl }}" charset="utf-8"></script>
 <link rel="stylesheet" href="{{ get_pygments_stylesheet()|url }}">
 <title>{% block title %}Welcome{% endblock %} — pytest-tricks</title>
 <body>
-  <header>
-    <h1>pytest-tricks</h1>
-    <nav>
-      <ul class="nav navbar-nav">
-        <li{% if this._path == '/' %} class="active"{% endif
-          %}><a href="{{ '/'|url }}">Welcome</a></li>
-        {% for href, title in [
-          ['/blog', 'Blog'],
-          ['/projects', 'Projects'],
-          ['/about', 'About']
-        ] %}
-          <li{% if this.is_child_of(href) %} class="active"{% endif
-            %}><a href="{{ href|url }}">{{ title }}</a></li>
-        {% endfor %}
-      </ul>
-    </nav>
-  </header>
-  <div class="page">
-    {% block body %}{% endblock %}
-  </div>
-  <footer>
-    &copy; Copyright 2016 by Raphael Pierzina.
-  </footer>
+    <header>
+        <div class="container">
+            <h1><a href="/">pytest-tricks</a></h1>
+        </div>
+    </header>
+    <hr>
+    <div class="container page">
+        {% block body %}{% endblock %}
+    </div>
+    <hr>
+    <footer>
+        <div class="container">
+            &copy; Copyright 2016 by Raphael Pierzina.
+        </div>
+    </footer>
 </body>
