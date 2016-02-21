@@ -1,0 +1,126 @@
+<!doctype html>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../static/gen/styles.css?h=067087bb">
+<script type=text/javascript src="../static/gen/app.js?h=84e6c9c7" charset="utf-8"></script>
+<link rel="stylesheet" href="../static/pygments.css">
+<title>Run Tests Using a Certain Fixture (2016) — pytest-tricks</title>
+<body>
+    <header>
+        <div class="container">
+            <h1><a href="../">pytest-tricks</a></h1>
+        </div>
+    </header>
+    <hr>
+    <div class="container page">
+        
+<div class="jumbotron">
+    <h2>Run Tests Using a Certain Fixture</h2>
+    <div class="row">
+        <div class="col-md-6">
+            <dl>
+                <dt>Date
+                <dd>Feb 21, 2016
+                <dt>Author
+                <dd><a href="https://twitter.com/hackebrot">@hackebrot</a>
+                
+                    <dt>Documentation
+                    <dd><a href="http://pytest.org/latest/writing_plugins.html#_pytest.hookspec.pytest_collection_modifyitems">http://pytest.org/latest/writing_plugins.html#_pytest.hookspec.pytest_collection_modifyitems</a>
+                
+                
+                    <dt>Tags
+                    <dd>fixture, hook, selection
+                
+            </dl>
+        </div>
+        <div class="col-md-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title"><strong>TL;DR</strong></h3>
+                </div>
+                <div class="panel-body">
+                    <p>Use the <code>pytest_collection_modifyitems</code> hook to select only tests that use a certain fixture</p>
+
+                </div>
+            </div>
+            <a href="https://twitter.com/share" class="twitter-share-button" data-text="Run Tests Using a Certain Fixture" data-via="hackebrot" data-size="large" data-related="pytestdotorg" data-hashtags="python,pytest">Tweet</a>
+            <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+            <a href="https://twitter.com/hackebrot" class="twitter-follow-button" data-show-count="false" data-size="large">Follow @hackebrot</a>
+            <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+            <a aria-label="Star hackebrot/pytest-tricks on GitHub" data-style="mega" href="https://github.com/hackebrot/pytest-tricks" class="github-button">Star</a>
+            <a aria-label="Fork hackebrot/pytest-tricks on GitHub" data-style="mega" href="https://github.com/hackebrot/pytest-tricks/fork" class="github-button">Fork</a>
+            <script async defer id="github-bjs" src="https://buttons.github.io/buttons.js"></script>
+        </div>
+    </div>
+</div>
+<p id="content"><h1>Hooks</h1>
+<p>The hook-based plugin architecture of pytest empowers you to heavily customize the test runners behavior. In this particular case we'll make use of the <code>pytest_collection_modifyitems</code> hook. It is called after collection has been performed and hence provides access to the actual test items - objects which represent a single test.</p>
+<h1>Fixtures</h1>
+<p>Hooks have access to pytest's builtin fixtures such as <code>config</code>. We case use it to explicitly run a hook for deselecting test items, namely <code>config.hook.pytest_deselected</code>.</p>
+<h1>Items</h1>
+<p>This hook does not a return the test items. Instead you want to populate the given list as needed: <code>items[:] = selected_items</code></p>
+<h1>Implicit Fixture Usage</h1>
+<p>Pytests modular design allows you to re-use fixtures. The <code>fixturenames</code> attribute of a test item not only holds the fixtures which are specified in its signature but also the ones that are used implicitly.</p>
+<h1>Example Implementation</h1>
+<div class="highlight"><pre><span></span><span class="c1"># conftest.py</span>
+
+<span class="k">def</span> <span class="nf">pytest_collection_modifyitems</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+    <span class="n">selected_items</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">deselected_items</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">&#39;new_fixture&#39;</span> <span class="ow">in</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="s1">&#39;fixturenames&#39;</span><span class="p">,</span> <span class="p">()):</span>
+            <span class="n">selected_items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">deselected_items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">hook</span><span class="o">.</span><span class="n">pytest_deselected</span><span class="p">(</span><span class="n">items</span><span class="o">=</span><span class="n">deselected_items</span><span class="p">)</span>
+    <span class="n">items</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">selected_items</span>
+</pre></div>
+<div class="highlight"><pre><span></span><span class="c1"># test_foobar.py</span>
+
+<span class="kn">import</span> <span class="nn">pytest</span>
+
+
+<span class="nd">@pytest.fixture</span>
+<span class="k">def</span> <span class="nf">new_fixture</span><span class="p">():</span>
+    <span class="k">return</span> <span class="s1">&#39;foobar&#39;</span>
+
+
+<span class="nd">@pytest.fixture</span>
+<span class="k">def</span> <span class="nf">another_fixture</span><span class="p">(</span><span class="n">new_fixture</span><span class="p">):</span>
+    <span class="k">return</span> <span class="s1">&#39;foobar&#39;</span>
+
+
+<span class="k">def</span> <span class="nf">test_abc</span><span class="p">(</span><span class="n">new_fixture</span><span class="p">):</span>
+    <span class="k">assert</span> <span class="bp">True</span>
+
+
+<span class="k">def</span> <span class="nf">test_def</span><span class="p">(</span><span class="n">another_fixture</span><span class="p">):</span>
+    <span class="k">assert</span> <span class="bp">False</span>
+
+
+<span class="k">def</span> <span class="nf">test_that_does_not_use_fixture</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="bp">False</span>
+</pre></div>
+<h1>Test Report</h1>
+<div class="highlight"><pre><span></span>$ py.test -v
+<span class="o">=============================</span> <span class="nb">test</span> session <span class="nv">starts</span> <span class="o">==============================</span>
+platform darwin -- Python 3.5.0, pytest-2.8.7, py-1.4.31, pluggy-0.3.1
+collected <span class="m">3</span> items
+
+test_foobar.py::test_abc PASSED
+test_foobar.py::test_def <span class="nv">PASSED</span>
+
+<span class="o">====================</span> <span class="m">2</span> passed, <span class="m">1</span> deselected in 0.01 <span class="nv">seconds</span> <span class="o">====================</span>
+</pre></div>
+</p>
+
+    </div>
+    <hr>
+    <footer>
+        <div class="container">
+            &copy; Copyright 2016 by Raphael Pierzina and pytest-dev team.
+            <br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
+            <br />Built with <a href="https://www.getlektor.com/">Lektor</a>.
+        </div>
+    </footer>
+</body>
