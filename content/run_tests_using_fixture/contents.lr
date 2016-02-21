@@ -54,7 +54,7 @@ def test_abc(new_fixture):
 
 
 def test_def(another_fixture):
-    assert False
+    assert True
 
 
 def test_that_does_not_use_fixture():
