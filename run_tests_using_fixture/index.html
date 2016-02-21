@@ -57,7 +57,7 @@
 <h1>Fixtures</h1>
 <p>Hooks have access to pytest's builtin fixtures such as <code>config</code>. We case use it to explicitly run a hook for deselecting test items, namely <code>config.hook.pytest_deselected</code>.</p>
 <h1>Items</h1>
-<p>This hook does not a return the test items. Instead you want to populate the given list as needed: <code>items[:] = selected_items</code></p>
+<p>Watch out! This hook does not return the test items. Instead you want to populate the given list as needed: <code>items[:] = selected_items</code></p>
 <h1>Implicit Fixture Usage</h1>
 <p>Pytests modular design allows you to re-use fixtures. The <code>fixturenames</code> attribute of a test item not only holds the fixtures which are specified in its signature but also the ones that are used implicitly.</p>
 <h1>Example Implementation</h1>
