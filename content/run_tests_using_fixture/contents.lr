@@ -1,0 +1,88 @@
+name: Run Tests Using a Certain Fixture
+---
+author: hackebrot
+---
+content:
+
+# Hooks
+The hook-based plugin architecture of pytest empowers you to heavily customize the test runners behavior. In this particular case we'll make use of the ``pytest_collection_modifyitems`` hook. It is called after collection has been performed and hence provides access to the actual test items - objects which represent a single test.
+
+# Fixtures
+Hooks have access to pytest's builtin fixtures such as ``config``. We case use it to explicitly run a hook for deselecting test items, namely ``config.hook.pytest_deselected``. 
+
+# Items
+This hook does not a return the test items. Instead you want to populate the given list as needed: ``items[:] = selected_items``
+
+# Implicit Fixture Usage
+Pytests modular design allows you to re-use fixtures. The ``fixturenames`` attribute of a test item not only holds the fixtures which are specified in its signature but also the ones that are used implicitly.
+
+# Example Implementation
+```python
+# conftest.py
+
+def pytest_collection_modifyitems(items, config):
+    selected_items = []
+    deselected_items = []
+
+    for item in items:
+        if 'new_fixture' in getattr(item, 'fixturenames', ()):
+            selected_items.append(item)
+        else:
+            deselected_items.append(item)
+    config.hook.pytest_deselected(items=deselected_items)
+    items[:] = selected_items
+```
+
+```python
+# test_foobar.py
+
+import pytest
+
+
+@pytest.fixture
+def new_fixture():
+    return 'foobar'
+
+
+@pytest.fixture
+def another_fixture(new_fixture):
+    return 'foobar'
+
+
+def test_abc(new_fixture):
+    assert True
+
+
+def test_def(another_fixture):
+    assert False
+
+
+def test_that_does_not_use_fixture():
+    assert False
+```
+
+# Test Report
+
+```bash
+$ py.test -v
+============================= test session starts ==============================
+platform darwin -- Python 3.5.0, pytest-2.8.7, py-1.4.31, pluggy-0.3.1
+collected 3 items
+
+test_foobar.py::test_abc PASSED
+test_foobar.py::test_def PASSED
+
+==================== 2 passed, 1 deselected in 0.01 seconds ====================
+```
+---
+date: 2016-02-21
+---
+docs: http://pytest.org/latest/writing_plugins.html#_pytest.hookspec.pytest_collection_modifyitems
+---
+tags:
+
+hook
+fixture
+selection
+---
+tldr: Use the ``pytest_collection_modifyitems`` hook to select only tests that use a certain fixture
