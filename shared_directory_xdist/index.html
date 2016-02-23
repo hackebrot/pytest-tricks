@@ -1,0 +1,123 @@
+<!doctype html>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../static/gen/styles.css?h=067087bb">
+<script type=text/javascript src="../static/gen/app.js?h=2dd53748" charset="utf-8"></script>
+<link rel="stylesheet" href="../static/pygments.css">
+<title>Shared Directory Between Master and Workers With pytest-xdist (2016) — pytest-tricks</title>
+<body>
+    <header>
+        <div class="container">
+            <h1><a href="../">pytest-tricks</a></h1>
+        </div>
+    </header>
+    <hr>
+    <div class="container page">
+        
+<div class="jumbotron">
+    <h2>Shared Directory Between Master and Workers With pytest-xdist</h2>
+    <div class="row">
+        <div class="col-md-6">
+            <dl>
+                <dt>Date
+                <dd>Feb 22, 2016
+                <dt>Author
+                <dd><a href="https://twitter.com/nicoddemus">@nicoddemus</a>
+                
+                    <dt>Documentation
+                    <dd><a href="https://github.com/pytest-dev/pytest-xdist">http://pytest.org/latest/</a>
+                
+                
+                    <dt>Tags
+                    <dd>fixture, hook, xdist
+                
+            </dl>
+        </div>
+        <div class="col-md-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title"><strong>TL;DR</strong></h3>
+                </div>
+                <div class="panel-body">
+                    <p>Use <code>request.config.slaveinput</code> to send information from master to worker nodes in pytest-xdist</p>
+
+                </div>
+            </div>
+            <a href="https://twitter.com/share" class="twitter-share-button" data-text="Shared Directory Between Master and Workers With pytest-xdist" data-via="nicoddemus" data-size="large" data-related="pytestdotorg" data-hashtags="python,pytest">Tweet</a>
+            <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+            <a href="https://twitter.com/nicoddemus" class="twitter-follow-button" data-show-count="false" data-size="large">Follow @nicoddemus</a>
+            <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+            <a aria-label="Star hackebrot/pytest-tricks on GitHub" data-style="mega" href="https://github.com/hackebrot/pytest-tricks" class="github-button">Star</a>
+            <a aria-label="Fork hackebrot/pytest-tricks on GitHub" data-style="mega" href="https://github.com/hackebrot/pytest-tricks/fork" class="github-button">Fork</a>
+            <script async defer id="github-bjs" src="https://buttons.github.io/buttons.js"></script>
+        </div>
+    </div>
+</div>
+<p id="content"><h1>pytest-xdist</h1>
+<p><a href="https://github.com/pytest-dev/pytest-xdist">pytest-xdist</a> is a plugin for
+distributed testing.</p>
+<p>A somewhat common need is how one can make a plugin share data between
+<code>master</code> and <code>worker</code> nodes?</p>
+<h1>Shared directory</h1>
+<p>Here's a simple recipe that provides a <code>shared_directory</code> fixture which
+points to a temporary directory accessible by both <code>masters</code> and <code>worker</code> nodes.</p>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">tempdir</span>
+
+
+<span class="k">def</span> <span class="nf">pytest_configure</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">is_master</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">shared_directory</span> <span class="o">=</span> <span class="n">tempdir</span><span class="o">.</span><span class="n">mktemp</span><span class="p">()</span>
+
+
+<span class="k">def</span> <span class="nf">pytest_unconfigure</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">is_master</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">shared_directory</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">pytest_configure_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;xdist hook&quot;&quot;&quot;</span>
+    <span class="n">node</span><span class="o">.</span><span class="n">slaveinput</span><span class="p">[</span><span class="s1">&#39;shared_dir&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">shared_directory</span>
+
+
+<span class="k">def</span> <span class="nf">is_master</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;True if the code running the given pytest.config object is running in a xdist master</span>
+<span class="sd">    node or not running xdist at all.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;slaveinput&#39;</span><span class="p">)</span>
+
+
+<span class="nd">@pytest.fixture</span>
+<span class="k">def</span> <span class="nf">shared_directory</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns a unique and temporary directory which can be shared by</span>
+<span class="sd">    master or worker nodes in xdist runs.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">is_master</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">config</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">request</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">shared_directory</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">request</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">slaveinput</span><span class="p">[</span><span class="s1">&#39;shared_dir&#39;</span><span class="p">]</span>
+</pre></div>
+<p>Anything put in <code>node.slaveinput</code> dictionary during the <code>pytest_configure_node</code>
+xdist hook can be accessed by the worker nodes later. You can put any
+simple builtin type, like lists, strings, tuples, etc.</p>
+<p>The <code>shared_directory</code> fixture can then be used by a plugin or even tests
+to have a common directory where information can be exchanged. This
+recipe also shows how one can find out if the code is running in the master
+or a worker node.</p>
+<p>(this recipe appeared originally in
+<a href="https://github.com/pytest-dev/pytest/issues/1402#issuecomment-186299177">this pytest issue</a>)</p>
+</p>
+
+    </div>
+    <hr>
+    <footer>
+        <div class="container">
+            <div class="alert alert-dismissible alert-success">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                We are crowdfunding a dev sprint in June for pytest 3.0. <a href="https://www.indiegogo.com/projects/python-testing-sprint-mid-2016" class="alert-link">Please join us and/or support us!</a>.
+            </div>
+            &copy; Copyright 2016 by Raphael Pierzina and pytest-dev team.
+            <br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
+            <br />Built with <a href="https://www.getlektor.com/">Lektor</a>. Fork me on <a href="https://github.com/hackebrot/pytest-tricks/">GitHub</a>.
+        </div>
+    </footer>
+</body>
