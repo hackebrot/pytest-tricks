@@ -18,6 +18,7 @@ Here's a simple recipe that provides a `shared_directory` fixture which
 points to a temporary directory accessible by both `masters` and `worker` nodes.
 
 ```python
+import shutil
 import tempdir
 
 
@@ -45,6 +46,9 @@ def is_master(config):
 
 @pytest.fixture
 def shared_directory(request):
+    """Returns a unique and temporary directory which can be shared by
+    master or worker nodes in xdist runs.
+    """
     if is_master(request.config):
         return request.config.shared_directory
     else:
