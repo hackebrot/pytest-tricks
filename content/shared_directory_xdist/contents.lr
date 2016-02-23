@@ -18,6 +18,9 @@ Here's a simple recipe that provides a `shared_directory` fixture which
 points to a temporary directory accessible by both `masters` and `worker` nodes.
 
 ```python
+import tempdir
+
+
 def pytest_configure(config):
     if is_master(config):
         config.shared_directory = tempdir.mktemp()
@@ -59,7 +62,7 @@ recipe also shows how one can find out if the code is running in the master
 or a worker node.
 
 (this recipe appeared originally in
-[this pytest issue](https://github.com/pytest-dev/pytest/issues/1402#issuecomment-186299177)).
+[this pytest issue](https://github.com/pytest-dev/pytest/issues/1402#issuecomment-186299177))
 
 ---
 date: 2016-02-22
