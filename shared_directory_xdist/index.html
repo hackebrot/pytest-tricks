@@ -74,7 +74,7 @@ points to a temporary directory accessible by both <code>masters</code> and <cod
         <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">shared_directory</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">pytest_configure_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">pytest_configure_node</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;xdist hook&quot;&quot;&quot;</span>
     <span class="n">node</span><span class="o">.</span><span class="n">slaveinput</span><span class="p">[</span><span class="s1">&#39;shared_dir&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">shared_directory</span>
 
