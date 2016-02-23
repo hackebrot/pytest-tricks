@@ -1,4 +1,4 @@
-name: Shared directory between master and workers with pytest-xdist
+name: Shared Directory Between Master and Workers With pytest-xdist
 ---
 author: nicoddemus
 ---
