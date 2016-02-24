@@ -31,6 +31,22 @@ import pytest
 def test_foobar(foo, bar):
     assert True
 ```
+
+# Fixture
+To parametrize a fixture you need pass an interable to the ``params`` keyword argument.
+The built-in fixture ``request`` knows about the current parameter and if you don't want to do anything fancy,
+you can pass it right to the test via the ``return`` statement.
+
+```python
+import pytest
+
+@pytest.fixture(params=['apple', 'banana'])
+def fruit(request):
+    return request.param
+
+def test_fruit(fruit):
+    assert True
+```
 ---
 date: 2016-02-23
 ---
