@@ -1,0 +1,31 @@
+name: Create Tests via Parametrization
+---
+author: hackebrot
+---
+content:
+
+# Use Case
+Imagine you want to write a test for a particular function, but for multiple input values.
+Writing a for-loop is a bad idea as the test will fail as soon as it hits the first ``AssertionError``.
+Subsequent input values will not be tested and you have no idea which part of your code is actually broken.
+At the same time you want to stick to DRY and not implement the same ``unittest.Testcase``
+method over and over again with slightly different input values.
+
+Keep in mind **why** we write unit tests:
+
+**We want to know when we break stuff, but also at the same time get as many hints as possible on why the error occurs!**
+
+Pytest provides various ways of creating individual test items. There are parametrized fixtures and mark.parametrize (and hooks).
+---
+date: 2016-02-23
+---
+docs: https://pytest.org/latest/parametrize.html
+---
+tags:
+
+marker
+fixture
+parametrize
+ids
+---
+tldr: Use ``@pytest.fixture(params=[1, 2])`` or ``@pytest.mark.parametrize('a, b', [(1, 2), (3, 4)])`` to create multiple tests
