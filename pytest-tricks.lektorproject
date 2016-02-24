@@ -4,6 +4,7 @@ name = pytest-tricks
 [packages]
 lektor-webpack-support = 0.1
 lektor-markdown-highlighter = 0.1
+lektor-disqus-comments = 0.2
 
 [servers.ghpages]
 target = ghpages+https://hackebrot/pytest-tricks
