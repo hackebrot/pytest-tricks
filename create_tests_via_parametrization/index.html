@@ -1,0 +1,224 @@
+<!doctype html>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../static/gen/styles.css?h=067087bb">
+<script type=text/javascript src="../static/gen/app.js?h=2dd53748" charset="utf-8"></script>
+<link rel="stylesheet" href="../static/pygments.css">
+<title>Create Tests via Parametrization (2016) — pytest-tricks</title>
+<body>
+    <header>
+        <div class="container">
+            <h1><a href="../">pytest-tricks</a></h1>
+        </div>
+    </header>
+    <hr>
+    <div class="container page">
+        
+<div class="jumbotron">
+    <div class="row">
+        <div class="col-md-6">
+            <h2>Create Tests via Parametrization</h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <dl>
+                <dt>Date
+                <dd>Feb 23, 2016
+                <dt>Author
+                <dd><a href="https://twitter.com/hackebrot">@hackebrot</a>
+                
+                    <dt>Documentation
+                    <dd><a href="https://pytest.org/latest/parametrize.html">http://pytest.org/latest/</a>
+                
+                
+                    <dt>Tags
+                    <dd>fixture, ids, marker, parametrize
+                
+            </dl>
+        </div>
+        <div class="col-md-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title"><strong>TL;DR</strong></h3>
+                </div>
+                <div class="panel-body">
+                    <p>Use <code>@pytest.fixture(params=[1, 2])</code> or <code>@pytest.mark.parametrize('a, b', [(1, 2), (3, 4)])</code> to create multiple tests</p>
+
+                </div>
+            </div>
+            <a href="https://twitter.com/share" class="twitter-share-button" data-text="Create Tests via Parametrization" data-via="hackebrot" data-size="large" data-related="pytestdotorg" data-hashtags="python,pytest">Tweet</a>
+            <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+            <a href="https://twitter.com/hackebrot" class="twitter-follow-button" data-show-count="false" data-size="large">Follow @hackebrot</a>
+            <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+            <a aria-label="Star hackebrot/pytest-tricks on GitHub" data-style="mega" href="https://github.com/hackebrot/pytest-tricks" class="github-button">Star</a>
+            <a aria-label="Fork hackebrot/pytest-tricks on GitHub" data-style="mega" href="https://github.com/hackebrot/pytest-tricks/fork" class="github-button">Fork</a>
+            <script async defer id="github-bjs" src="https://buttons.github.io/buttons.js"></script>
+        </div>
+    </div>
+</div>
+<p id="content"><h1>Use Case</h1>
+<p>Imagine you want to write a test for a particular function, but for multiple input values.
+Writing a for-loop is a bad idea as the test will fail as soon as it hits the first <code>AssertionError</code>.
+Subsequent input values will not be tested and you have no idea which part of your code is actually broken.
+At the same time you want to stick to DRY and not implement the same <code>unittest.Testcase</code>
+method over and over again with slightly different input values.</p>
+<p>Keep in mind <strong>why</strong> we write unit tests:</p>
+<p><strong>We want to know when we break stuff, but also at the same time get as many hints as possible on why the error occurs!</strong></p>
+<p>Pytest provides various ways of creating individual test items. There are parametrized fixtures and mark.parametrize (and hooks).</p>
+<h1>Marker</h1>
+<p>Using this built-in marker you do not need to implement any fixtures. Instead you define your scenarios in a decorator and the only
+thing you really need to look out for is to match the number of positional test arguments with your iterable.</p>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
+
+<span class="nd">@pytest.mark.parametrize</span><span class="p">(</span><span class="s1">&#39;foo, bar&#39;</span><span class="p">,</span> <span class="p">[</span>
+    <span class="p">(</span><span class="s1">&#39;foo1&#39;</span><span class="p">,</span> <span class="s1">&#39;bar1&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s1">&#39;foo2&#39;</span><span class="p">,</span> <span class="s1">&#39;bar2&#39;</span><span class="p">)</span>
+<span class="p">])</span>
+<span class="k">def</span> <span class="nf">test_foobar</span><span class="p">(</span><span class="n">foo</span><span class="p">,</span> <span class="n">bar</span><span class="p">):</span>
+    <span class="k">assert</span> <span class="bp">True</span>
+</pre></div>
+<h1>Fixture</h1>
+<p>To parametrize a fixture you need pass an interable to the <code>params</code> keyword argument.
+The built-in fixture <code>request</code> knows about the current parameter and if you don't want to do anything fancy,
+you can pass it right to the test via the <code>return</code> statement.</p>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
+
+<span class="nd">@pytest.fixture</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;apple&#39;</span><span class="p">,</span> <span class="s1">&#39;banana&#39;</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">fruit</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">request</span><span class="o">.</span><span class="n">param</span>
+
+<span class="k">def</span> <span class="nf">test_fruit</span><span class="p">(</span><span class="n">fruit</span><span class="p">):</span>
+    <span class="k">assert</span> <span class="bp">True</span>
+</pre></div>
+<h1>Example Implementation</h1>
+<p><em>Please note that the examples are written in Python3</em></p>
+<p>Sometimes you may find yourself struggling to chose which is the best way to parametrize your tests.
+At the end of the day it really depends on what you want to test. But...
+Good news! Pytest lets you combine both methods to get the most out of both worlds.</p>
+<h2>Some Classes in a Module</h2>
+<p>Imagine this Python module (<code>foobar.py</code>) which contains a few class definitions with a bit of logic:</p>
+<div class="highlight"><pre><span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="n">FOSS_LICENSES</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Apache 2.0&#39;</span><span class="p">,</span> <span class="s1">&#39;MIT&#39;</span><span class="p">,</span> <span class="s1">&#39;GPL&#39;</span><span class="p">,</span> <span class="s1">&#39;BSD&#39;</span><span class="p">]</span>
+
+<span class="n">PYTHON_PKGS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;pytest&#39;</span><span class="p">,</span> <span class="s1">&#39;requests&#39;</span><span class="p">,</span> <span class="s1">&#39;django&#39;</span><span class="p">,</span> <span class="s1">&#39;cookiecutter&#39;</span><span class="p">]</span>
+
+
+<span class="k">class</span> <span class="nc">Package</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">license</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">license</span> <span class="o">=</span> <span class="n">license</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_open_source</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">license</span> <span class="ow">in</span> <span class="n">FOSS_LICENSES</span>
+
+
+<span class="k">class</span> <span class="nc">Person</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">gender</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gender</span> <span class="o">=</span> <span class="n">gender</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_skills</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;eating&#39;</span><span class="p">,</span> <span class="s1">&#39;sleeping&#39;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">learn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">skill</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_skills</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">skill</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">looks_like_a_programmer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">any</span><span class="p">(</span>
+            <span class="n">package</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_skills</span>
+            <span class="k">for</span> <span class="n">package</span> <span class="ow">in</span> <span class="n">PYTHON_PKGS</span>
+        <span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">Woman</span><span class="p">(</span><span class="n">Person</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;female&#39;</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">Man</span><span class="p">(</span><span class="n">Person</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;male&#39;</span><span class="p">)</span>
+</pre></div>
+<h2>Tests in a Separate Module</h2>
+<p>With only two few lines of pytest code, we can create loads of different scenarios that we would like to test.
+By re-using parametrized fixtures and applying the aforementioned markers to your tests, you can focus on the actual test implementation, as opposed to
+writing the same boilerplate code for each of the methods that you would have to write with <code>unittest.TestCase</code>.</p>
+<div class="highlight"><pre><span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="kn">import</span> <span class="nn">operator</span>
+<span class="kn">import</span> <span class="nn">pytest</span>
+
+<span class="kn">from</span> <span class="nn">foobar</span> <span class="kn">import</span> <span class="n">Package</span><span class="p">,</span> <span class="n">Woman</span><span class="p">,</span> <span class="n">Man</span>
+
+<span class="n">PACKAGES</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">Package</span><span class="p">(</span><span class="s1">&#39;requests&#39;</span><span class="p">,</span> <span class="s1">&#39;Apache 2.0&#39;</span><span class="p">),</span>
+    <span class="n">Package</span><span class="p">(</span><span class="s1">&#39;django&#39;</span><span class="p">,</span> <span class="s1">&#39;BSD&#39;</span><span class="p">),</span>
+    <span class="n">Package</span><span class="p">(</span><span class="s1">&#39;pytest&#39;</span><span class="p">,</span> <span class="s1">&#39;MIT&#39;</span><span class="p">),</span>
+<span class="p">]</span>
+
+
+<span class="nd">@pytest.fixture</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">PACKAGES</span><span class="p">,</span> <span class="n">ids</span><span class="o">=</span><span class="n">operator</span><span class="o">.</span><span class="n">attrgetter</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">))</span>
+<span class="k">def</span> <span class="nf">python_package</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">request</span><span class="o">.</span><span class="n">param</span>
+
+
+<span class="nd">@pytest.mark.parametrize</span><span class="p">(</span><span class="s1">&#39;person&#39;</span><span class="p">,</span> <span class="p">[</span>
+    <span class="n">Woman</span><span class="p">(</span><span class="s1">&#39;Audrey&#39;</span><span class="p">),</span> <span class="n">Woman</span><span class="p">(</span><span class="s1">&#39;Brianna&#39;</span><span class="p">),</span>
+    <span class="n">Man</span><span class="p">(</span><span class="s1">&#39;Daniel&#39;</span><span class="p">),</span> <span class="n">Woman</span><span class="p">(</span><span class="s1">&#39;Ola&#39;</span><span class="p">),</span> <span class="n">Man</span><span class="p">(</span><span class="s1">&#39;Kenneth&#39;</span><span class="p">)</span>
+<span class="p">])</span>
+<span class="k">def</span> <span class="nf">test_become_a_programmer</span><span class="p">(</span><span class="n">person</span><span class="p">,</span> <span class="n">python_package</span><span class="p">):</span>
+    <span class="n">person</span><span class="o">.</span><span class="n">learn</span><span class="p">(</span><span class="n">python_package</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">person</span><span class="o">.</span><span class="n">looks_like_a_programmer</span>
+
+
+<span class="k">def</span> <span class="nf">test_is_open_source</span><span class="p">(</span><span class="n">python_package</span><span class="p">):</span>
+    <span class="k">assert</span> <span class="n">python_package</span><span class="o">.</span><span class="n">is_open_source</span>
+</pre></div>
+<h1>Test Report</h1>
+<p>Going the extra mile and setting up <code>ids</code> for your test scenarios greatly increases
+the comprehensibilty of your test report. In this case we would like to display the name
+of each <code>Package</code> rather than the fixture name with a numbered suffix such as <code>python_package2</code>.</p>
+<p>If you run the tests now, you will see that pytest created 18 <strong>individual tests</strong> for us (Yes, yes indeed. 18 = 3 * 5 + 3).</p>
+<div class="highlight"><pre><span></span>$ py.test -v
+================================== test session starts ==================================
+platform darwin -- Python 3.5.0, pytest-2.8.7, py-1.4.31, pluggy-0.3.1
+collected 18 items
+
+test_foobar.py::test_become_a_programmer[requests-person0] PASSED
+test_foobar.py::test_become_a_programmer[requests-person1] PASSED
+test_foobar.py::test_become_a_programmer[requests-person2] PASSED
+test_foobar.py::test_become_a_programmer[requests-person3] PASSED
+test_foobar.py::test_become_a_programmer[requests-person4] PASSED
+test_foobar.py::test_become_a_programmer[django-person0] PASSED
+test_foobar.py::test_become_a_programmer[django-person1] PASSED
+test_foobar.py::test_become_a_programmer[django-person2] PASSED
+test_foobar.py::test_become_a_programmer[django-person3] PASSED
+test_foobar.py::test_become_a_programmer[django-person4] PASSED
+test_foobar.py::test_become_a_programmer[pytest-person0] PASSED
+test_foobar.py::test_become_a_programmer[pytest-person1] PASSED
+test_foobar.py::test_become_a_programmer[pytest-person2] PASSED
+test_foobar.py::test_become_a_programmer[pytest-person3] PASSED
+test_foobar.py::test_become_a_programmer[pytest-person4] PASSED
+test_foobar.py::test_is_open_source[requests] PASSED
+test_foobar.py::test_is_open_source[django] PASSED
+test_foobar.py::test_is_open_source[pytest] PASSED
+
+=============================== 18 passed in 0.02 seconds ===============================
+</pre></div>
+</p>
+
+    </div>
+    <hr>
+    <footer>
+        <div class="container">
+            <div class="alert alert-dismissible alert-success">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                We are crowdfunding a dev sprint in June for pytest 3.0. <a href="https://www.indiegogo.com/projects/python-testing-sprint-mid-2016" class="alert-link">Please join us and/or support us!</a>.
+            </div>
+            &copy; Copyright 2016 by Raphael Pierzina and pytest-dev team.
+            <br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
+            <br />Built with <a href="https://www.getlektor.com/">Lektor</a>. Fork me on <a href="https://github.com/hackebrot/pytest-tricks/">GitHub</a>.
+        </div>
+    </footer>
+</body>
