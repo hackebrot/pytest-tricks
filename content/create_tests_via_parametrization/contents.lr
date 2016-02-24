@@ -16,6 +16,21 @@ Keep in mind **why** we write unit tests:
 **We want to know when we break stuff, but also at the same time get as many hints as possible on why the error occurs!**
 
 Pytest provides various ways of creating individual test items. There are parametrized fixtures and mark.parametrize (and hooks).
+
+# Marker
+Using this built-in marker you do not need to implement any fixtures. Instead you define your scenarios in a decorator and the only
+thing you really need to look out for is to match the number of positional test arguments with your iterable.
+
+```python
+import pytest
+
+@pytest.mark.parametrize('foo, bar', [
+    ('foo1', 'bar1'),
+    ('foo2', 'bar2')
+])
+def test_foobar(foo, bar):
+    assert True
+```
 ---
 date: 2016-02-23
 ---
