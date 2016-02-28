@@ -58,6 +58,15 @@ If you run ``$ py.test --ff`` all tests will be executed, but re-ordered based
 on whether they've failed in the previous run or not. Failures first,
 successful tests after.
 
+# Stop Tests After N Failures
+You can end the test session early by pressing ``CTRL-C``. Although pytest
+catches the ``KeyboardInterrupt`` error and runs the teardown code before
+closing the session gracefully, it is definitely not the best way to stop the
+test suite.
+
+Instead use ``-x`` to stop after the first failure, or ``--maxfail=N`` to stop
+after the first N failures.
+
 ---
 date: 2016-02-28
 ---
