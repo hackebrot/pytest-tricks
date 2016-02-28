@@ -1,0 +1,146 @@
+<!doctype html>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../static/gen/styles.css?h=3e7c0aad">
+<script type=text/javascript src="../static/gen/app.js?h=2dd53748" charset="utf-8"></script>
+<link rel="stylesheet" href="../static/pygments.css">
+<title>Debug Test Failures With Pdb (2016) — pytest-tricks</title>
+<body>
+    <header>
+        <div class="container">
+            <h1><a href="../">pytest-tricks</a></h1>
+        </div>
+    </header>
+    <hr>
+    <div class="container page">
+        
+<div class="jumbotron">
+    <div class="row">
+        <div class="col-md-6">
+            <h2>Debug Test Failures With Pdb</h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <dl>
+                <dt>Date
+                <dd>Feb 28, 2016
+                <dt>Author
+                <dd><a href="https://twitter.com/hackebrot">@hackebrot</a>
+                
+                    <dt>Documentation
+                    <dd><a href="https://pytest.org/latest/usage.html">http://pytest.org/latest/</a>
+                
+                
+                    <dt>Tags
+                    <dd>debugger, invocation, options
+                
+            </dl>
+        </div>
+        <div class="col-md-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title"><strong>TL;DR</strong></h3>
+                </div>
+                <div class="panel-body">
+                    <p>Combine options <code>-x</code>, <code>-l</code>, <code>--lf</code> and <code>--tb=long</code> to analyze
+results. Drop to the built-in debugger with <code>--pdb</code>.</p>
+
+                </div>
+            </div>
+            <a href="https://twitter.com/share" class="twitter-share-button" data-text="Debug Test Failures With Pdb" data-via="hackebrot" data-size="large" data-related="pytestdotorg" data-hashtags="python,pytest">Tweet</a>
+            <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+            <a href="https://twitter.com/hackebrot" class="twitter-follow-button" data-show-count="false" data-size="large">Follow @hackebrot</a>
+            <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+            <a aria-label="Star hackebrot/pytest-tricks on GitHub" data-style="mega" href="https://github.com/hackebrot/pytest-tricks" class="github-button">Star</a>
+            <a aria-label="Fork hackebrot/pytest-tricks on GitHub" data-style="mega" href="https://github.com/hackebrot/pytest-tricks/fork" class="github-button">Fork</a>
+            <script async defer id="github-bjs" src="https://buttons.github.io/buttons.js"></script>
+        </div>
+    </div>
+</div>
+<p id="content"><h1>Tracebacks</h1>
+<p>Pytest excels at helping you with test failures.  After running your tests via
+py.test, you will see an error report with a detailed traceback for each of the
+failures, if any.  You can change the mode in which output is presented to you
+via the <code>--tb</code> cli option:</p>
+<div class="highlight"><pre><span></span>py.test --tb=auto    # (default) &#39;long&#39; tracebacks for the first and last
+                     # entry, but &#39;short&#39; style for the other entries
+py.test --tb=long    # exhaustive, informative traceback formatting
+py.test --tb=short   # shorter traceback format
+py.test --tb=line    # only one line per failure
+py.test --tb=native  # Python standard library formatting
+py.test --tb=no      # no traceback at all
+</pre></div>
+<h1>Debugger</h1>
+<p>Have you ever heard of <a href="https://docs.python.org/3.5/library/pdb.html">pdb - the Python Debugger</a>?
+I strongly recommend checking it out, if you haven't used it yet. The standard
+library's built-in debugger will prove useful for debugging your Python code
+without installing any external dependencies or setting up some fancy IDE.</p>
+<p>If invoked with the <code>--pdb</code> option, pytest will place a debugger breakpoint
+whenever an error occurs in your tests.</p>
+<div class="highlight"><pre><span></span>$ py.test --pdb
+</pre></div>
+<p>You can also set a debugger breakpoint yourself with <code>import pdb;
+pdb.set_trace()</code>.</p>
+<p>Use commands <code>help</code>, <code>list</code> and <code>pp</code> to inspect the test code.</p>
+<p>If you want to get a list of all local variables and their value, it's best to
+run pytest with the <code>-l</code> option enabled, as <code>locals()</code> may contain internal
+pytest items if you print it from the breakpoint.</p>
+<h1>Running Broken Tests Only</h1>
+<p>An underrated feature of pytest is the <code>--lf</code> option, which tells pytest to
+only run the tests that failed the last time it was executed.</p>
+<p>Once you've encountered any errors in your tests, you want to focus on the
+failures and get a better understanding of what's causing the problems as
+opposed to spending time on running tests that are perfectly fine.</p>
+<h1>Re-order Tests. Failures First</h1>
+<p>Keep in mind though, whenever you modify your code other tests may break.</p>
+<p>If you run <code>$ py.test --ff</code> all tests will be executed, but re-ordered based
+on whether they've failed in the previous run or not. Failures first,
+successful tests after.</p>
+<h1>Stop Tests After N Failures</h1>
+<p>You can end the test session early by pressing <code>CTRL-C</code>. Although pytest
+catches the <code>KeyboardInterrupt</code> error and runs the teardown code before
+closing the session gracefully, it is definitely not the best way to stop the
+test suite.</p>
+<p>Instead use <code>-x</code> to stop after the first failure, or <code>--maxfail=N</code> to stop
+after the first N failures.</p>
+</p>
+<div class="comment-box">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title"><strong>COMMENTS</strong></h3>
+        </div>
+        <div class="panel-body">
+            <div class="comments">
+<div id="disqus_thread"></div>
+<script>
+  var disqus_config = function() { this.page.identifier = "/debug_test_failures"; };
+  (function() {
+    var d = document, s = d.createElement('script');
+    s.src = '//pytest-tricks.disqus.com/embed.js';
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+  })();
+</script>
+<noscript>
+  Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript"
+    rel="nofollow">comments powered by Disqus.</a>
+</noscript>
+</div>
+        </div>
+    </div>
+</div>
+
+    </div>
+    <hr>
+    <footer>
+        <div class="container">
+            <div class="alert alert-dismissible alert-success">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                We are crowdfunding a dev sprint in June for pytest 3.0. <a href="https://www.indiegogo.com/projects/python-testing-sprint-mid-2016" class="alert-link">Please join us and/or support us!</a>.
+            </div>
+            &copy; Copyright 2016 by Raphael Pierzina and pytest-dev team.
+            <br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
+            <br />Built with <a href="https://www.getlektor.com/">Lektor</a>. Fork me on <a href="https://github.com/hackebrot/pytest-tricks/">GitHub</a>.
+        </div>
+    </footer>
+</body>
