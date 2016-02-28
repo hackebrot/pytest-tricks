@@ -43,6 +43,14 @@ pytest items if you print it from the breakpoint.
 
 [pdb]: https://docs.python.org/3.5/library/pdb.html
 
+# Running Broken Tests Only
+An underrated feature of pytest is the ``--lf`` option, which tells pytest to
+only run the tests that failed the last time it was executed.
+
+Once you've encountered any errors in your tests, you want to focus on the
+failures and get a better understanding of what's causing the problems as
+opposed to spending time on running tests that are perfectly fine.
+
 ---
 date: 2016-02-28
 ---
