@@ -20,6 +20,29 @@ py.test --tb=native  # Python standard library formatting
 py.test --tb=no      # no traceback at all
 ```
 
+# Debugger
+Have you ever heard of [pdb - the Python Debugger][pdb]?
+I strongly recommend checking it out, if you haven't used it yet. The standard
+library's built-in debugger will prove useful for debugging your Python code
+without installing any external dependencies or setting up some fancy IDE.
+
+If invoked with the ``--pdb`` option, pytest will place a debugger breakpoint
+whenever an error occurs in your tests.
+
+```text
+$ py.test --pdb
+```
+You can also set a debugger breakpoint yourself with ``import pdb;
+pdb.set_trace()``.
+
+Use commands ``help``, ``list`` and ``pp`` to inspect the test code.
+
+If you want to get a list of all local variables and their value, it's best to
+run pytest with the ``-l`` option enabled, as ``locals()`` may contain internal
+pytest items if you print it from the breakpoint.
+
+[pdb]: https://docs.python.org/3.5/library/pdb.html
+
 ---
 date: 2016-02-28
 ---
