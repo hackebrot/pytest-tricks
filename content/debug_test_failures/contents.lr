@@ -51,6 +51,13 @@ Once you've encountered any errors in your tests, you want to focus on the
 failures and get a better understanding of what's causing the problems as
 opposed to spending time on running tests that are perfectly fine.
 
+# Re-order Tests. Failures First
+Keep in mind though, whenever you modify your code other tests may break.
+
+If you run ``$ py.test --ff`` all tests will be executed, but re-ordered based
+on whether they've failed in the previous run or not. Failures first,
+successful tests after.
+
 ---
 date: 2016-02-28
 ---
