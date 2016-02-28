@@ -1,0 +1,82 @@
+name: Debug Test Failures With Pdb
+---
+author: hackebrot
+---
+content:
+
+# Tracebacks
+Pytest excels at helping you with test failures.  After running your tests via
+py.test, you will see an error report with a detailed traceback for each of the
+failures, if any.  You can change the mode in which output is presented to you
+via the ``--tb`` cli option:
+
+```text
+py.test --tb=auto    # (default) 'long' tracebacks for the first and last
+                     # entry, but 'short' style for the other entries
+py.test --tb=long    # exhaustive, informative traceback formatting
+py.test --tb=short   # shorter traceback format
+py.test --tb=line    # only one line per failure
+py.test --tb=native  # Python standard library formatting
+py.test --tb=no      # no traceback at all
+```
+
+# Debugger
+Have you ever heard of [pdb - the Python Debugger][pdb]?
+I strongly recommend checking it out, if you haven't used it yet. The standard
+library's built-in debugger will prove useful for debugging your Python code
+without installing any external dependencies or setting up some fancy IDE.
+
+If invoked with the ``--pdb`` option, pytest will place a debugger breakpoint
+whenever an error occurs in your tests.
+
+```text
+$ py.test --pdb
+```
+You can also set a debugger breakpoint yourself with ``import pdb;
+pdb.set_trace()``.
+
+Use commands ``help``, ``list`` and ``pp`` to inspect the test code.
+
+If you want to get a list of all local variables and their value, it's best to
+run pytest with the ``-l`` option enabled, as ``locals()`` may contain internal
+pytest items if you print it from the breakpoint.
+
+[pdb]: https://docs.python.org/3.5/library/pdb.html
+
+# Running Broken Tests Only
+An underrated feature of pytest is the ``--lf`` option, which tells pytest to
+only run the tests that failed the last time it was executed.
+
+Once you've encountered any errors in your tests, you want to focus on the
+failures and get a better understanding of what's causing the problems as
+opposed to spending time on running tests that are perfectly fine.
+
+# Re-order Tests. Failures First
+Keep in mind though, whenever you modify your code other tests may break.
+
+If you run ``$ py.test --ff`` all tests will be executed, but re-ordered based
+on whether they've failed in the previous run or not. Failures first,
+successful tests after.
+
+# Stop Tests After N Failures
+You can end the test session early by pressing ``CTRL-C``. Although pytest
+catches the ``KeyboardInterrupt`` error and runs the teardown code before
+closing the session gracefully, it is definitely not the best way to stop the
+test suite.
+
+Instead use ``-x`` to stop after the first failure, or ``--maxfail=N`` to stop
+after the first N failures.
+
+---
+date: 2016-02-28
+---
+docs: https://pytest.org/latest/usage.html
+---
+tags:
+
+debugger
+invocation
+options
+---
+tldr: Combine options ``-x``, ``-l``, ``--lf`` and ``--tb=long`` to analyze
+results. Drop to the built-in debugger with ``--pdb``.
