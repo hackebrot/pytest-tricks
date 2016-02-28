@@ -1,0 +1,35 @@
+name: Debug Test Failures With Pdb
+---
+author: hackebrot
+---
+content:
+
+# Tracebacks
+Pytest excels at helping you with test failures.  After running your tests via
+py.test, you will see an error report with a detailed traceback for each of the
+failures, if any.  You can change the mode in which output is presented to you
+via the ``--tb`` cli option:
+
+```text
+py.test --tb=auto    # (default) 'long' tracebacks for the first and last
+                     # entry, but 'short' style for the other entries
+py.test --tb=long    # exhaustive, informative traceback formatting
+py.test --tb=short   # shorter traceback format
+py.test --tb=line    # only one line per failure
+py.test --tb=native  # Python standard library formatting
+py.test --tb=no      # no traceback at all
+```
+
+---
+date: 2016-02-28
+---
+docs: https://pytest.org/latest/usage.html
+---
+tags:
+
+debugger
+invocation
+options
+---
+tldr: Combine options ``-x``, ``-l``, ``--lf`` and ``--tb=long`` to analyze
+results. Drop to the built-in debugger with ``--pdb``.
