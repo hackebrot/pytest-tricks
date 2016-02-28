@@ -24,12 +24,12 @@ thing you really need to look out for is to match the number of positional test 
 ```python
 import pytest
 
-@pytest.mark.parametrize('foo, bar', [
+@pytest.mark.parametrize('argument, expected_result', [
     ('foo1', 'bar1'),
     ('foo2', 'bar2')
 ])
-def test_foobar(foo, bar):
-    assert True
+def test_foobar(argument, expected_result):
+    assert foobar(argument) == expected_result
 ```
 
 # Fixture
