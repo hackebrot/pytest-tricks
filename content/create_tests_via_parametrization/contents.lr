@@ -51,7 +51,7 @@ def fruit(request):
     return request.param
 
 def test_is_healthy(fruit):
-    assert is_healty(fruit)
+    assert is_healthy(fruit)
 ```
 
 # Example Implementation
