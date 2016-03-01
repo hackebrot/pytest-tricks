@@ -24,12 +24,18 @@ thing you really need to look out for is to match the number of positional test 
 ```python
 import pytest
 
-@pytest.mark.parametrize('foo, bar', [
-    ('foo1', 'bar1'),
-    ('foo2', 'bar2')
-])
-def test_foobar(foo, bar):
-    assert True
+@pytest.mark.parametrize(
+    'number, word', [
+        (1, '1'),
+        (3, 'Fizz'),
+        (5, 'Buzz'),
+        (10, 'Buzz'),
+        (15, 'FizzBuzz'),
+        (16, '16')
+    ]
+)
+def test_fizzbuzz(number, word):
+    assert fizzbuzz(number) == word
 ```
 
 # Fixture
