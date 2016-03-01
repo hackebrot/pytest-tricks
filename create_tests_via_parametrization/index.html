@@ -70,12 +70,18 @@ method over and over again with slightly different input values.</p>
 thing you really need to look out for is to match the number of positional test arguments with your iterable.</p>
 <div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
 
-<span class="nd">@pytest.mark.parametrize</span><span class="p">(</span><span class="s1">&#39;foo, bar&#39;</span><span class="p">,</span> <span class="p">[</span>
-    <span class="p">(</span><span class="s1">&#39;foo1&#39;</span><span class="p">,</span> <span class="s1">&#39;bar1&#39;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s1">&#39;foo2&#39;</span><span class="p">,</span> <span class="s1">&#39;bar2&#39;</span><span class="p">)</span>
-<span class="p">])</span>
-<span class="k">def</span> <span class="nf">test_foobar</span><span class="p">(</span><span class="n">foo</span><span class="p">,</span> <span class="n">bar</span><span class="p">):</span>
-    <span class="k">assert</span> <span class="bp">True</span>
+<span class="nd">@pytest.mark.parametrize</span><span class="p">(</span>
+    <span class="s1">&#39;number, word&#39;</span><span class="p">,</span> <span class="p">[</span>
+        <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;1&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;Fizz&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="s1">&#39;Buzz&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="s1">&#39;Buzz&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="s1">&#39;FizzBuzz&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="s1">&#39;16&#39;</span><span class="p">)</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+<span class="k">def</span> <span class="nf">test_fizzbuzz</span><span class="p">(</span><span class="n">number</span><span class="p">,</span> <span class="n">word</span><span class="p">):</span>
+    <span class="k">assert</span> <span class="n">fizzbuzz</span><span class="p">(</span><span class="n">number</span><span class="p">)</span> <span class="o">==</span> <span class="n">word</span>
 </pre></div>
 <h1>Fixture</h1>
 <p>To parametrize a fixture you need pass an interable to the <code>params</code> keyword argument.
@@ -83,12 +89,12 @@ The built-in fixture <code>request</code> knows about the current parameter and 
 you can pass it right to the test via the <code>return</code> statement.</p>
 <div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
 
-<span class="nd">@pytest.fixture</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;apple&#39;</span><span class="p">,</span> <span class="s1">&#39;banana&#39;</span><span class="p">])</span>
+<span class="nd">@pytest.fixture</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;apple&#39;</span><span class="p">,</span> <span class="s1">&#39;banana&#39;</span><span class="p">,</span> <span class="s1">&#39;plum&#39;</span><span class="p">])</span>
 <span class="k">def</span> <span class="nf">fruit</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">request</span><span class="o">.</span><span class="n">param</span>
 
-<span class="k">def</span> <span class="nf">test_fruit</span><span class="p">(</span><span class="n">fruit</span><span class="p">):</span>
-    <span class="k">assert</span> <span class="bp">True</span>
+<span class="k">def</span> <span class="nf">test_is_healthy</span><span class="p">(</span><span class="n">fruit</span><span class="p">):</span>
+    <span class="k">assert</span> <span class="n">is_healty</span><span class="p">(</span><span class="n">fruit</span><span class="p">)</span>
 </pre></div>
 <h1>Example Implementation</h1>
 <p><em>Please note that the examples are written in Python3</em></p>
