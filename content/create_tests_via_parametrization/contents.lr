@@ -46,12 +46,12 @@ you can pass it right to the test via the ``return`` statement.
 ```python
 import pytest
 
-@pytest.fixture(params=['apple', 'banana'])
+@pytest.fixture(params=['apple', 'banana', 'plum'])
 def fruit(request):
     return request.param
 
-def test_fruit(fruit):
-    assert True
+def test_is_healthy(fruit):
+    assert is_healty(fruit)
 ```
 
 # Example Implementation
