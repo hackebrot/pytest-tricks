@@ -1,0 +1,160 @@
+name: Show Pytest Warnings
+---
+author: hackebrot
+---
+content:
+
+If you are migrating from unittest to pytest, you might encounter warnings when
+running your tests. No failures, no errors, but *pytest-warnings*. This may be
+confusing to you, regardless of whether you are new to pytest or an experienced
+user.
+
+# Pytest
+
+In the following example, pytest displays *pytest-warnings* at the very end of
+the test run in the session summary.
+
+```text
+$ py.test
+=========================== test session starts ============================
+platform darwin -- Python 3.5.0, pytest-2.8.7, py-1.4.31, pluggy-0.3.1
+collected 2 items
+
+test_foobar.py ..
+
+=============== 2 passed, 1 pytest-warnings in 0.02 seconds ================
+```
+
+# Unittest
+
+Running the same tests under *unittest* does not show any warnings.
+
+```text
+$ python -m unittest
+..
+----------------------------------------------------------------------
+Ran 2 tests in 0.000s
+
+OK
+```
+
+# Tests
+
+As you can see there are two tests that are collected and both pass without any
+failures or errors.
+
+Let's have a look at the code:
+
+```python
+# -*- coding: utf-8 -*-
+
+import unittest
+
+
+class Client:
+    def get(self, url, *args, **kwargs):
+        # Send a real request based on the given parameters
+        pass
+
+
+class TestResponse:
+    def __init__(self, method, url, *args, **kwargs):
+        if 'foobar' in url:
+            self.status = 404
+            self.reason = 'foobar'
+        else:
+            self.status = 200
+            self.reason = None
+
+
+class TestClient(Client):
+    def get(self, url, *args, **kwargs):
+        return TestResponse('get', url)
+
+
+class TestScrapingTool(unittest.TestCase):
+    def setUp(self):
+        self.client = TestClient()
+
+    def test_success(self):
+        response = self.client.get('https://github.com/pytest-dev')
+        self.assertEqual(response.status, 200)
+        self.assertEqual(response.reason, None)
+
+    def test_failure(self):
+        response = self.client.get('foobar')
+        self.assertEqual(response.status, 404)
+        self.assertEqual(response.reason, 'foobar')
+```
+
+At first glance, the implementation may look just fine (albeit admittedly not
+particularly meaningful). It implements a stub client that inherits from a
+*real* client and returns a ``TestResponse`` instance as opposed to sending a
+request over a network connection.
+
+Then there are two unittest tests, one for a valid url and another one for an
+invalid url respectively. Pytest is perfectly fine with it being
+``unittest.TestCase`` methods, so that is unlikely to cause the issue.
+
+# Warnings
+
+Pytest comes with a ``-rw`` command line flag to display internal warnings,
+such as the one that is reported for our test session:
+
+```text
+$ py.test -rw
+=========================== test session starts ============================
+platform darwin -- Python 3.5.0, pytest-2.8.7, py-1.4.31, pluggy-0.3.1
+collected 2 items
+
+test_foobar.py ..
+
+========================== pytest-warning summary ==========================
+WC1 /show_pytest_warnings/test_foobar.py cannot collect test class
+'TestResponse' because it has a __init__ constructor
+=============== 2 passed, 1 pytest-warnings in 0.02 seconds ================
+```
+
+Running the suite with this flag now points us to the source of the problem.
+Pytest tries to collect ``TestResponse`` as its name matches the naming
+conventions for test classes. However it finds a ``__init__`` method, which it
+cannot understand.
+
+# Solution
+
+In this particular case, there is an simple solution to what one could consider
+a code smell: Rename the classes which are used in your tests but not actual
+test cases.
+
+```python
+class StubResponse:
+    ...
+
+
+class StubClient(Client):
+    ...
+```
+
+# Reporting Options
+
+For more information about the various reporting options, please consult the
+help via ``$ py.test --help`` and see the according section:
+
+```text
+-r chars              show extra test summary info as specified by chars
+                      (f)ailed, (E)error, (s)skipped, (x)failed, (X)passed
+                      (w)pytest-warnings (a)all.
+```
+---
+date: 2016-04-08
+---
+docs: https://pytest.org/latest/example/simple.html
+---
+tags:
+
+invocation
+options
+reporting
+warnings
+---
+tldr: Run pytest with ``-rw`` CLI flag to show internal warnings
