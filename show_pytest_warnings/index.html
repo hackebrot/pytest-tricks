@@ -1,0 +1,212 @@
+<!doctype html>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../static/gen/styles.css?h=3e7c0aad">
+<script type=text/javascript src="../static/gen/app.js?h=5f3e736b" charset="utf-8"></script>
+<link rel="stylesheet" href="../static/pygments.css">
+<title>Show Pytest Warnings (2016) — pytest-tricks</title>
+<body>
+    <header>
+        <div class="container">
+            <h1><a href="../">pytest-tricks</a></h1>
+        </div>
+    </header>
+    <hr>
+    <div class="container page">
+        
+<div class="jumbotron">
+    <div class="row">
+        <div class="col-md-6">
+            <h2>Show Pytest Warnings</h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <dl>
+                <dt>Date
+                <dd>Apr 8, 2016
+                <dt>Author
+                <dd><a href="https://twitter.com/hackebrot">@hackebrot</a>
+                
+                    <dt>Documentation
+                    <dd><a href="https://pytest.org/latest/example/simple.html">http://pytest.org/latest/</a>
+                
+                
+                    <dt>Tags
+                    <dd>invocation, options, reporting, warnings
+                
+            </dl>
+        </div>
+        <div class="col-md-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title"><strong>TL;DR</strong></h3>
+                </div>
+                <div class="panel-body">
+                    <p>Run pytest with <code>-rw</code> CLI flag to show internal warnings</p>
+
+                </div>
+            </div>
+            <a href="https://twitter.com/share" class="twitter-share-button" data-text="Show Pytest Warnings" data-via="hackebrot" data-size="large" data-related="pytestdotorg" data-hashtags="python,pytest">Tweet</a>
+            <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+            <a href="https://twitter.com/hackebrot" class="twitter-follow-button" data-show-count="false" data-size="large">Follow @hackebrot</a>
+            <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+            <a aria-label="Star hackebrot/pytest-tricks on GitHub" data-style="mega" href="https://github.com/hackebrot/pytest-tricks" class="github-button">Star</a>
+            <a aria-label="Fork hackebrot/pytest-tricks on GitHub" data-style="mega" href="https://github.com/hackebrot/pytest-tricks/fork" class="github-button">Fork</a>
+            <script async defer id="github-bjs" src="https://buttons.github.io/buttons.js"></script>
+        </div>
+    </div>
+</div>
+<p id="content"><p>If you are migrating from unittest to pytest, you might encounter warnings when
+running your tests. No failures, no errors, but <em>pytest-warnings</em>. This may be
+confusing to you, regardless of whether you are new to pytest or an experienced
+user.</p>
+<h1>Pytest</h1>
+<p>In the following example, pytest displays <em>pytest-warnings</em> at the very end of
+the test run in the session summary.</p>
+<div class="highlight"><pre><span></span>$ py.test
+=========================== test session starts ============================
+platform darwin -- Python 3.5.0, pytest-2.8.7, py-1.4.31, pluggy-0.3.1
+collected 2 items
+
+test_foobar.py ..
+
+=============== 2 passed, 1 pytest-warnings in 0.02 seconds ================
+</pre></div>
+<h1>Unittest</h1>
+<p>Running the same tests under <em>unittest</em> does not show any warnings.</p>
+<div class="highlight"><pre><span></span>$ python -m unittest
+..
+---------------------------------------------------------------------
+Ran 2 tests in 0.000s
+
+OK
+</pre></div>
+<h1>Tests</h1>
+<p>As you can see there are two tests that are collected and both pass without any
+failures or errors.</p>
+<p>Let's have a look at the code:</p>
+<div class="highlight"><pre><span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="kn">import</span> <span class="nn">unittest</span>
+
+
+<span class="k">class</span> <span class="nc">Client</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="c1"># Send a real request based on the given parameters</span>
+        <span class="k">pass</span>
+
+
+<span class="k">class</span> <span class="nc">TestResponse</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s1">&#39;foobar&#39;</span> <span class="ow">in</span> <span class="n">url</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="mi">404</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">reason</span> <span class="o">=</span> <span class="s1">&#39;foobar&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="mi">200</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">reason</span> <span class="o">=</span> <span class="bp">None</span>
+
+
+<span class="k">class</span> <span class="nc">TestClient</span><span class="p">(</span><span class="n">Client</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">TestResponse</span><span class="p">(</span><span class="s1">&#39;get&#39;</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">TestScrapingTool</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">client</span> <span class="o">=</span> <span class="n">TestClient</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">test_success</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;https://github.com/pytest-dev&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">reason</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">test_failure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;foobar&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="mi">404</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">reason</span><span class="p">,</span> <span class="s1">&#39;foobar&#39;</span><span class="p">)</span>
+</pre></div>
+<p>At first glance, the implementation may look just fine (albeit admittedly not
+particularly meaningful). It implements a stub client that inherits from a
+<em>real</em> client and returns a <code>TestResponse</code> instance as opposed to sending a
+request over a network connection.</p>
+<p>Then there are two unittest tests, one for a valid url and another one for an
+invalid url respectively. Pytest is perfectly fine with it being
+<code>unittest.TestCase</code> methods, so that is unlikely to cause the issue.</p>
+<h1>Warnings</h1>
+<p>Pytest comes with a <code>-rw</code> command line flag to display internal warnings,
+such as the one that is reported for our test session:</p>
+<div class="highlight"><pre><span></span>$ py.test -rw
+=========================== test session starts ============================
+platform darwin -- Python 3.5.0, pytest-2.8.7, py-1.4.31, pluggy-0.3.1
+collected 2 items
+
+test_foobar.py ..
+
+========================== pytest-warning summary ==========================
+WC1 /show_pytest_warnings/test_foobar.py cannot collect test class
+&#39;TestResponse&#39; because it has a __init__ constructor
+=============== 2 passed, 1 pytest-warnings in 0.02 seconds ================
+</pre></div>
+<p>Running the suite with this flag now points us to the source of the problem.
+Pytest tries to collect <code>TestResponse</code> as its name matches the naming
+conventions for test classes. However it finds a <code>__init__</code> method, which it
+cannot understand.</p>
+<h1>Solution</h1>
+<p>In this particular case, there is an simple solution to what one could consider
+a code smell: Rename the classes which are used in your tests but not actual
+test cases.</p>
+<div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">StubResponse</span><span class="p">:</span>
+    <span class="o">...</span>
+
+
+<span class="k">class</span> <span class="nc">StubClient</span><span class="p">(</span><span class="n">Client</span><span class="p">):</span>
+    <span class="o">...</span>
+</pre></div>
+<h1>Reporting Options</h1>
+<p>For more information about the various reporting options, please consult the
+help via <code>$ py.test --help</code> and see the according section:</p>
+<div class="highlight"><pre><span></span>-r chars              show extra test summary info as specified by chars
+                      (f)ailed, (E)error, (s)skipped, (x)failed, (X)passed
+                      (w)pytest-warnings (a)all.
+</pre></div>
+</p>
+<div class="comment-box">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title"><strong>COMMENTS</strong></h3>
+        </div>
+        <div class="panel-body">
+            <div class="comments">
+<div id="disqus_thread"></div>
+<script>
+  var disqus_config = function() { this.page.identifier = "/show_pytest_warnings"; };
+  (function() {
+    var d = document, s = d.createElement('script');
+    s.src = '//pytest-tricks.disqus.com/embed.js';
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+  })();
+</script>
+<noscript>
+  Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript"
+    rel="nofollow">comments powered by Disqus.</a>
+</noscript>
+</div>
+        </div>
+    </div>
+</div>
+
+    </div>
+    <hr>
+    <footer>
+        <div class="container">
+            <div class="alert alert-dismissible alert-success">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                We are crowdfunding a dev sprint in June for pytest 3.0. <a href="https://www.indiegogo.com/projects/python-testing-sprint-mid-2016" class="alert-link">Please join us and/or support us!</a>.
+            </div>
+            &copy; Copyright 2016 by Raphael Pierzina and pytest-dev team.
+            <br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
+            <br />Built with <a href="https://www.getlektor.com/">Lektor</a>. Fork me on <a href="https://github.com/hackebrot/pytest-tricks/">GitHub</a>.
+        </div>
+    </footer>
+</body>
