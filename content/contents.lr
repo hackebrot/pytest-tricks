@@ -1,1 +1,5 @@
 _model: posts
+---
+author: Raphael Pierzina and pytest-dev team
+---
+short_description: Tips and Tricks for the Python Testing Tool
