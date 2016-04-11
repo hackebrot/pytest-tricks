@@ -1,5 +1,6 @@
 [project]
 name = pytest-tricks
+url = http://hackebrot.github.io/pytest-tricks/
 
 [packages]
 lektor-webpack-support = 0.1
