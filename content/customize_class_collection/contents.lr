@@ -1,0 +1,81 @@
+name: Customize how py.test collects tests from classes
+---
+author: nicoddemus
+---
+content:
+
+py.test by default collects all classes which start with `Test` that are found in
+`test*.py` or `*test.py` modules. This behavior can be configured using the
+`python_classes` and `python_files`
+[configuration options](http://pytest.org/latest/customize.html#confval-python_files).
+
+Also, it will out-of-the box collect classes which subclass `unittest.TestCase`
+(regardless of their name), making it easy to run existing test suites.
+
+But thanks to py.test's flexible plugin architecture, one can customize how
+tests are collected from classes to suit almost any requirement.
+
+# Collect all subclasses of a certain class
+
+Recently someone asked in the [pytest-dev](https://mail.python.org/pipermail/pytest-dev/2016-April/003556.html)
+mailing list how to make py.test collect all classes that subclass from some
+specific base class, independently of their name.
+
+Suppose all your test classes subclass from a certain utility class:
+
+```python
+class TestingUtils(object):
+
+    def connect_to_database(self):
+        ...
+
+    def validate_ui(self):
+        ...
+```
+
+and all your tests are written in functions in subclasses of `TestingUtils`, but
+that don't follow any particular naming convention:
+
+```python
+class BorgTests(TestingUtils):
+
+    def test_borg_creation(self):
+        db = self.connect_to_database()
+        ...
+
+class ValidationRules(TestingUtils):
+
+    def test_rule_1(self):
+        ...
+
+```
+
+You can implement your own collection rules by implementing the
+[pytest_pycollect_makeitem](http://pytest.org/latest/writing_plugins.html#_pytest.hookspec.pytest_pycollect_makeitem) hook.
+
+Simply add this code to a `conftest.py` file at the root of your tests' directory and
+that's it:
+
+
+```python
+def pytest_pycollect_makeitem(collector, name, obj):
+    if inspect.isclass(obj) and issubclass(obj, TestingUtils):
+        Class = collector._getcustomclass("Class")
+        return Class(name, parent=collector)
+
+```
+
+This won't interfere with the normal test collection mechanism, only add to it,
+so classes prefixed with `Test` will also be collected as usual.
+
+---
+date: 2016-04-19
+---
+docs: http://pytest.org/latest/writing_plugins.html
+---
+tags:
+
+hook
+collect
+---
+tldr: Use `pytest_pycollect_makeitem` to customize how tests are collected from classes
