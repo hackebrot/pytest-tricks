@@ -4,7 +4,7 @@ author: nicoddemus
 ---
 content:
 
-py.test by default collects all classes which start with `Test` that are found
+By default py.test collects all classes which start with `Test` that are found
 in `test*.py` or `*test.py` modules. This behavior can be configured using the
 `python_classes` and `python_files` [configuration
 options](http://pytest.org/latest/customize.html#confval-python_files).
@@ -19,7 +19,7 @@ tests are collected from classes to suit almost any requirement.
 
 Recently someone asked in the
 [pytest-dev](https://mail.python.org/pipermail/pytest-dev/2016-April/003556.html)
-mailing list how to make py.test collect all classes that subclass from some
+mailing list how to make py.test collect all classes, that subclass from some
 specific base class, independently of their name.
 
 Suppose all your test classes subclass from a certain utility class:
@@ -34,7 +34,7 @@ class TestingUtils(object):
         ...
 ```
 
-and all your tests are written in functions in subclasses of `TestingUtils`,
+And all your tests are written in functions in subclasses of `TestingUtils`,
 but that don't follow any particular naming convention:
 
 ```python
@@ -71,14 +71,14 @@ This won't interfere with the normal test collection mechanism, only add to it,
 so classes prefixed with `Test` will also be collected as usual.
 
 ---
-date: 2016-04-19
+date: 2016-04-20
 ---
 docs: http://pytest.org/latest/writing_plugins.html
 ---
 tags:
 
 hook
-collect
+collection
 ---
 tldr: Use ``pytest_pycollect_makeitem`` to customize how tests are collected
 from classes
