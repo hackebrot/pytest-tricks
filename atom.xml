@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title type="text">pytest-tricks</title>
   <id>urn:uuid:7f0b50d2-7dc3-329b-b27b-5001002cb581</id>
-  <updated>2016-04-08T00:00:00Z</updated>
+  <updated>2016-04-19T00:00:00Z</updated>
   <link href="http://hackebrot.github.io/pytest-tricks/" />
   <link href="http://hackebrot.github.io/pytest-tricks/atom.xml" rel="self" />
   <author>
@@ -10,6 +10,61 @@
   </author>
   <subtitle type="text">Tips and Tricks for the Python Testing Tool</subtitle>
   <generator uri="https://github.com/ajdavis/lektor-atom" version="0.1">Lektor Atom Plugin</generator>
+  <entry xml:base="http://hackebrot.github.io/pytest-tricks/customize_class_collection/">
+    <title type="text">Customize how py.test collects tests from classes</title>
+    <id>urn:uuid:b9997068-d3b9-3aea-bc05-4f8d47cfcbdd</id>
+    <updated>2016-04-19T00:00:00Z</updated>
+    <link href="http://hackebrot.github.io/pytest-tricks/customize_class_collection/" />
+    <author>
+      <name>nicoddemus</name>
+    </author>
+    <content type="html">&lt;p&gt;py.test by default collects all classes which start with &lt;code&gt;Test&lt;/code&gt; that are found in
+&lt;code&gt;test*.py&lt;/code&gt; or &lt;code&gt;*test.py&lt;/code&gt; modules. This behavior can be configured using the
+&lt;code&gt;python_classes&lt;/code&gt; and &lt;code&gt;python_files&lt;/code&gt;
+&lt;a href=&quot;http://pytest.org/latest/customize.html#confval-python_files&quot;&gt;configuration options&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Also, it will out-of-the box collect classes which subclass &lt;code&gt;unittest.TestCase&lt;/code&gt;
+(regardless of their name), making it easy to run existing test suites.&lt;/p&gt;
+&lt;p&gt;But thanks to py.test's flexible plugin architecture, one can customize how
+tests are collected from classes to suit almost any requirement.&lt;/p&gt;
+&lt;h1&gt;Collect all subclasses of a certain class&lt;/h1&gt;
+&lt;p&gt;Recently someone asked in the &lt;a href=&quot;https://mail.python.org/pipermail/pytest-dev/2016-April/003556.html&quot;&gt;pytest-dev&lt;/a&gt;
+mailing list how to make py.test collect all classes that subclass from some
+specific base class, independently of their name.&lt;/p&gt;
+&lt;p&gt;Suppose all your test classes subclass from a certain utility class:&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;TestingUtils&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;object&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;connect_to_database&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;validate_ui&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;and all your tests are written in functions in subclasses of &lt;code&gt;TestingUtils&lt;/code&gt;, but
+that don't follow any particular naming convention:&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;BorgTests&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;TestingUtils&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;test_borg_creation&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;db&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;connect_to_database&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;ValidationRules&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;TestingUtils&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;test_rule_1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;You can implement your own collection rules by implementing the
+&lt;a href=&quot;http://pytest.org/latest/writing_plugins.html#_pytest.hookspec.pytest_pycollect_makeitem&quot;&gt;pytest_pycollect_makeitem&lt;/a&gt; hook.&lt;/p&gt;
+&lt;p&gt;Simply add this code to a &lt;code&gt;conftest.py&lt;/code&gt; file at the root of your tests' directory and
+that's it:&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;pytest_pycollect_makeitem&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;collector&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;obj&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;inspect&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;isclass&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;obj&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;and&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;issubclass&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;obj&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;TestingUtils&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;Class&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;collector&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;_getcustomclass&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&amp;quot;Class&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Class&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;parent&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;collector&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;This won't interfere with the normal test collection mechanism, only add to it,
+so classes prefixed with &lt;code&gt;Test&lt;/code&gt; will also be collected as usual.&lt;/p&gt;
+</content>
+  </entry>
   <entry xml:base="http://hackebrot.github.io/pytest-tricks/show_pytest_warnings/">
     <title type="text">Show Pytest Warnings</title>
     <id>urn:uuid:fb23d039-764c-3939-9728-b9a78c865aae</id>
