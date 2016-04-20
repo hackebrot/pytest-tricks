@@ -3,7 +3,7 @@
 <link rel="stylesheet" href="../static/gen/styles.css?h=3e7c0aad">
 <script type=text/javascript src="../static/gen/app.js?h=5f3e736b" charset="utf-8"></script>
 <link rel="stylesheet" href="../static/pygments.css">
-<title>Customize how py.test collects tests from classes (2016) — pytest-tricks</title>
+<title>Customize How py.test Collects Tests From Classes (2016) — pytest-tricks</title>
 <body>
     <header>
         <div class="container">
@@ -16,7 +16,7 @@
 <div class="jumbotron">
     <div class="row">
         <div class="col-md-6">
-            <h2>Customize how py.test collects tests from classes</h2>
+            <h2>Customize How py.test Collects Tests From Classes</h2>
         </div>
     </div>
     <div class="row">
@@ -42,11 +42,12 @@
                     <h3 class="panel-title"><strong>TL;DR</strong></h3>
                 </div>
                 <div class="panel-body">
-                    <p>Use <code>pytest_pycollect_makeitem</code> to customize how tests are collected from classes</p>
+                    <p>Use <code>pytest_pycollect_makeitem</code> to customize how tests are collected
+from classes</p>
 
                 </div>
             </div>
-            <a href="https://twitter.com/share" class="twitter-share-button" data-text="Customize how py.test collects tests from classes" data-via="nicoddemus" data-size="large" data-related="pytestdotorg" data-hashtags="python,pytest">Tweet</a>
+            <a href="https://twitter.com/share" class="twitter-share-button" data-text="Customize How py.test Collects Tests From Classes" data-via="nicoddemus" data-size="large" data-related="pytestdotorg" data-hashtags="python,pytest">Tweet</a>
             <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
             <a href="https://twitter.com/nicoddemus" class="twitter-follow-button" data-show-count="false" data-size="large">Follow @nicoddemus</a>
             <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
@@ -56,16 +57,17 @@
         </div>
     </div>
 </div>
-<p id="content"><p>py.test by default collects all classes which start with <code>Test</code> that are found in
-<code>test*.py</code> or <code>*test.py</code> modules. This behavior can be configured using the
-<code>python_classes</code> and <code>python_files</code>
-<a href="http://pytest.org/latest/customize.html#confval-python_files">configuration options</a>.</p>
+<p id="content"><p>py.test by default collects all classes which start with <code>Test</code> that are found
+in <code>test*.py</code> or <code>*test.py</code> modules. This behavior can be configured using the
+<code>python_classes</code> and <code>python_files</code> <a href="http://pytest.org/latest/customize.html#confval-python_files">configuration
+options</a>.</p>
 <p>Also, it will out-of-the box collect classes which subclass <code>unittest.TestCase</code>
 (regardless of their name), making it easy to run existing test suites.</p>
 <p>But thanks to py.test's flexible plugin architecture, one can customize how
 tests are collected from classes to suit almost any requirement.</p>
-<h1>Collect all subclasses of a certain class</h1>
-<p>Recently someone asked in the <a href="https://mail.python.org/pipermail/pytest-dev/2016-April/003556.html">pytest-dev</a>
+<h1>Collect All Subclasses of a Certain Class</h1>
+<p>Recently someone asked in the
+<a href="https://mail.python.org/pipermail/pytest-dev/2016-April/003556.html">pytest-dev</a>
 mailing list how to make py.test collect all classes that subclass from some
 specific base class, independently of their name.</p>
 <p>Suppose all your test classes subclass from a certain utility class:</p>
@@ -77,8 +79,8 @@ specific base class, independently of their name.</p>
     <span class="k">def</span> <span class="nf">validate_ui</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="o">...</span>
 </pre></div>
-<p>and all your tests are written in functions in subclasses of <code>TestingUtils</code>, but
-that don't follow any particular naming convention:</p>
+<p>and all your tests are written in functions in subclasses of <code>TestingUtils</code>,
+but that don't follow any particular naming convention:</p>
 <div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">BorgTests</span><span class="p">(</span><span class="n">TestingUtils</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="nf">test_borg_creation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -92,9 +94,11 @@ that don't follow any particular naming convention:</p>
 </pre></div>
 <p>You can implement your own collection rules by implementing the
 <a href="http://pytest.org/latest/writing_plugins.html#_pytest.hookspec.pytest_pycollect_makeitem">pytest_pycollect_makeitem</a> hook.</p>
-<p>Simply add this code to a <code>conftest.py</code> file at the root of your tests' directory and
-that's it:</p>
-<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">pytest_pycollect_makeitem</span><span class="p">(</span><span class="n">collector</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+<p>Simply add this code to a <code>conftest.py</code> file at the root of your tests'
+directory and that's it:</p>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">inspect</span>
+
+<span class="k">def</span> <span class="nf">pytest_pycollect_makeitem</span><span class="p">(</span><span class="n">collector</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isclass</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">TestingUtils</span><span class="p">):</span>
         <span class="n">Class</span> <span class="o">=</span> <span class="n">collector</span><span class="o">.</span><span class="n">_getcustomclass</span><span class="p">(</span><span class="s2">&quot;Class&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">Class</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="n">collector</span><span class="p">)</span>
