@@ -23,7 +23,7 @@
         <div class="col-md-6">
             <dl>
                 <dt>Date
-                <dd>Apr 19, 2016
+                <dd>Apr 20, 2016
                 <dt>Author
                 <dd><a href="https://twitter.com/nicoddemus">@nicoddemus</a>
                 
@@ -32,7 +32,7 @@
                 
                 
                     <dt>Tags
-                    <dd>collect, hook
+                    <dd>collection, hook
                 
             </dl>
         </div>
@@ -57,7 +57,7 @@ from classes</p>
         </div>
     </div>
 </div>
-<p id="content"><p>py.test by default collects all classes which start with <code>Test</code> that are found
+<p id="content"><p>By default py.test collects all classes which start with <code>Test</code> that are found
 in <code>test*.py</code> or <code>*test.py</code> modules. This behavior can be configured using the
 <code>python_classes</code> and <code>python_files</code> <a href="http://pytest.org/latest/customize.html#confval-python_files">configuration
 options</a>.</p>
@@ -68,7 +68,7 @@ tests are collected from classes to suit almost any requirement.</p>
 <h1>Collect All Subclasses of a Certain Class</h1>
 <p>Recently someone asked in the
 <a href="https://mail.python.org/pipermail/pytest-dev/2016-April/003556.html">pytest-dev</a>
-mailing list how to make py.test collect all classes that subclass from some
+mailing list how to make py.test collect all classes, that subclass from some
 specific base class, independently of their name.</p>
 <p>Suppose all your test classes subclass from a certain utility class:</p>
 <div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">TestingUtils</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -79,7 +79,7 @@ specific base class, independently of their name.</p>
     <span class="k">def</span> <span class="nf">validate_ui</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="o">...</span>
 </pre></div>
-<p>and all your tests are written in functions in subclasses of <code>TestingUtils</code>,
+<p>And all your tests are written in functions in subclasses of <code>TestingUtils</code>,
 but that don't follow any particular naming convention:</p>
 <div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">BorgTests</span><span class="p">(</span><span class="n">TestingUtils</span><span class="p">):</span>
 
