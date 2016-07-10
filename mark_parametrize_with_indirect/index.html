@@ -242,8 +242,12 @@ set up expensive resources only when the tests that use it are being run.</p>
 rather than helper functions directly. This is also available from the
 <code>pytest_generate_tests</code> hook:</p>
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">pytest_generate_tests</span><span class="p">(</span><span class="n">metafunc</span><span class="p">):</span>
-    <span class="k">if</span> <span class="s1">&#39;db&#39;</span> <span class="ow">in</span> <span class="n">metafunc</span><span class="o">.</span><span class="n">fixturenames</span><span class="p">:</span>
-        <span class="n">metafunc</span><span class="o">.</span><span class="n">parametrize</span><span class="p">(</span><span class="s2">&quot;db&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;d1&#39;</span><span class="p">,</span> <span class="s1">&#39;d2&#39;</span><span class="p">],</span> <span class="n">indirect</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s1">&#39;sushi&#39;</span> <span class="ow">in</span> <span class="n">metafunc</span><span class="o">.</span><span class="n">fixturenames</span><span class="p">:</span>
+        <span class="n">metafunc</span><span class="o">.</span><span class="n">parametrize</span><span class="p">(</span>
+            <span class="s1">&#39;sushi&#39;</span><span class="p">,</span>
+            <span class="p">[</span><span class="s1">&#39;Kappa Maki&#39;</span><span class="p">,</span> <span class="s1">&#39;Tamagoyaki&#39;</span><span class="p">,</span> <span class="s1">&#39;Inarizushi&#39;</span><span class="p">],</span>
+            <span class="n">indirect</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+        <span class="p">)</span>
 </pre></div>
 <p>For more information see the <a href="http://pytest.org/latest/example/parametrize.html#deferring-the-setup-of-parametrized-resources">parametrize pytest docs</a>.</p>
 </p>
