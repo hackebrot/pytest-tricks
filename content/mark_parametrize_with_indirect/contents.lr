@@ -37,11 +37,11 @@ list to the keyword argument: ``indirect=['foo', 'bar']``.
 
 # Example code
 
-We define to classes that have a few fields to hold information. The tests will
-access the attributes to check for correctness of our code. For that we create
-a number of instances of the ``Sushi`` class with varying parameters, before we
-call its property ``is_vegetarian`` in the test to see if the *Fooshi Bar*
-offers a few vegetarian dishes.
+We define two classes that have a few fields to hold information. The tests
+will access the attributes to check for correctness of our code. For that we
+create a number of instances of the ``Sushi`` class with varying parameters,
+before we call its property ``is_vegetarian`` in the test to see if the *Fooshi
+Bar* offers a few vegetarian dishes.
 
 ``sushi.py``
 
@@ -83,7 +83,7 @@ class Sushi:
 A fixture named ``fooshi_bar`` creates a ``Restaurant`` with a variety of
 dishes on the menu.
 
-The fixture ``sushi`` creates the instances based on a name and looking up
+The fixture ``sushi`` creates instances based on a name and looking up
 ingredients from the ``session`` scoped ``recipes`` fixture when the test is
 being run. Since it is created with ``params`` it will not  only yield one but
 many instances. pytest will then create a number of test items for each of the
@@ -189,7 +189,7 @@ def test_sushi(sushi):
 
 # Test run
 
-When running the tests we can see that ``test_sushi`` is run eight times as
+When running these tests we can see that ``test_sushi`` is run eight times as
 expected as its only fixture ``sushi`` is created with eight parameters.
 
 On the other hand ``test_fooshi_serves_vegetarian_sushi`` is run six times combining
@@ -223,7 +223,7 @@ Since test parametrization is performed at collection time, you might want to
 set up expensive resources only when the tests that use it are being run.
 
 You can achieve this by using ``indirect`` and doing the hard work in fixtures
-rather than helper function. This is also available from the
+rather than helper functions directly. This is also available from the
 ``pytest_generate_tests`` hook:
 
 ```python
@@ -232,7 +232,7 @@ def pytest_generate_tests(metafunc):
         metafunc.parametrize("db", ['d1', 'd2'], indirect=True)
 ```
 
-For more information see [pytest docs](http://pytest.org/latest/example/parametrize.html#deferring-the-setup-of-parametrized-resources).
+For more information see the [parametrize pytest docs](http://pytest.org/latest/example/parametrize.html#deferring-the-setup-of-parametrized-resources).
 
 ---
 date: 2016-07-10
