@@ -1,0 +1,251 @@
+name: mark.parametrize with indirect
+---
+author: hackebrot
+---
+content:
+
+# mark.parametrize
+
+In [Create Tests via Parametrization][parametrize] we've learned how to
+use ``@pytest.mark.parametrize`` to generate a number of test cases for
+one test.
+
+[parametrize]: http://hackebrot.github.io/pytest-tricks/create_tests_via_parametrization/
+
+# indirect
+
+You can pass a keyword argument named ``indirect`` to ``parametrize`` to change
+how its parameters are being passed to the underlying test function. It accepts
+either a **boolean value** or a **list of strings** that refer to
+``pytest.fixure`` functions.
+
+## False
+
+If you set ``indirect`` to ``False`` or omit the parameter altogether, pytest
+will treat the given parameters as is w/o any specialties.
+
+## True
+
+All of the parameters are stored on the special ``request`` fixture. Other
+fixtures can then access it via ``request.param`` and modify the test
+parameter.
+
+## List of fixture names
+
+You can choose to only set ``indirect`` for a subset of arguments, by passing a
+list to the keyword argument: ``indirect=['foo', 'bar']``.
+
+# Example code
+
+We define to classes that have a few fields to hold information. The tests will
+access the attributes to check for correctness of our code. For that we create
+a number of instances of the ``Sushi`` class with varying parameters, before we
+call its property ``is_vegetarian`` in the test to see if the *Fooshi Bar*
+offers a few vegetarian dishes.
+
+``sushi.py``
+
+```python
+# -*- coding: utf-8 -*-
+
+
+class Restaurant:
+    def __init__(self, name, location, menu=None):
+        if not menu:
+            raise ValueError
+
+        self.name = name
+        self.location = location
+        self.menu = menu
+
+
+class Sushi:
+    def __init__(self, name, ingredients=None):
+        if not ingredients:
+            raise ValueError
+
+        self.name = name
+        self.ingredients = ingredients
+
+    def __contains__(self, ingredient):
+        return ingredient in self.ingredients
+
+    @property
+    def is_vegetarian(self):
+        for ingredient in ['Crab', 'Salmon', 'Shrimp', 'Tuna']:
+            if ingredient in self:
+                return False
+        return True
+```
+
+## Fixtures
+
+A fixture named ``fooshi_bar`` creates a ``Restaurant`` with a variety of
+dishes on the menu. 
+
+The fixture ``sushi`` creates the instances based on a name and looking up
+ingredients from the ``session`` scoped ``recipes`` fixture when the test is
+being run. Since it is created with ``params`` it will not  only yield one but
+many instances. pytest will then create a number of test items for each of the
+test function that uses it.
+
+``conftest.py``
+
+```python
+# -*- coding: utf-8 -*-
+
+import pytest
+
+from sushi import Restaurant, Sushi
+
+
+@pytest.fixture
+def fooshi_bar():
+    """Returns a Restaurant instance with a great menu."""
+    return Restaurant(
+        'Fooshi Bar',
+        location='Buenos Aires',
+        menu=[
+            'Ebi Nigiri',
+            'Edamame',
+            'Inarizushi',
+            'Kappa Maki',
+            'Miso Soup',
+            'Sake Nigiri',
+            'Tamagoyaki',
+        ],
+    )
+
+
+@pytest.fixture(scope='session')
+def recipes():
+    """Return a map from types of sushi to ingredients."""
+    return {
+        'California Roll': ['Rice', 'Cucumber', 'Avocado', 'Crab'],
+        'Ebi Nigiri': ['Shrimp', 'Rice'],
+        'Inarizushi': ['Fried tofu', 'Rice'],
+        'Kappa Maki': ['Cucumber', 'Rice', 'Nori'],
+        'Maguro Nigiri': ['Tuna', 'Rice', 'Nori'],
+        'Sake Nigiri': ['Salmon', 'Rice', 'Nori'],
+        'Tamagoyaki': ['Fried egg', 'Rice', 'Nori'],
+        'Tsunamayo Maki': ['Tuna', 'Mayonnaise'],
+    }
+
+
+@pytest.fixture(params=[
+    'California Roll',
+    'Ebi Nigiri',
+    'Inarizushi',
+    'Kappa Maki',
+    'Maguro Nigiri',
+    'Sake Nigiri',
+    'Tamagoyaki',
+    'Tsunamayo Maki',
+])
+def sushi(recipes, request):
+    """Create a Sushi instance based on recipes."""
+    name = request.param
+    return Sushi(name, ingredients=recipes[name])
+```
+
+## Tests
+
+We define two test functions that both use the ``sushi`` fixture.
+``test_fooshi_serves_vegetarian_sushi`` also uses ``fooshi_bar`` as well as
+``side_dish``, which is dynamically created during collection phase via
+``mark.parametrize``.
+
+Note how ``sushi`` is created with ``indirect=True``. Unlike ``side_dish`` it
+will be passed on to the according fixture function which turns the name of a
+type of sushi to an actual instance as explained above.
+
+``test_sushi.py``
+
+```python
+# -*- coding: utf-8 -*-
+
+import pytest
+
+
+@pytest.mark.parametrize(
+    'sushi',
+    ['Kappa Maki', 'Tamagoyaki', 'Inarizushi'],
+    indirect=True,
+)
+@pytest.mark.parametrize(
+    'side_dish',
+    ['Edamame', 'Miso Soup'],
+)
+def test_fooshi_serves_vegetarian_sushi(sushi, side_dish, fooshi_bar):
+    assert sushi.is_vegetarian
+    assert sushi.name in fooshi_bar.menu
+    assert side_dish in fooshi_bar.menu
+
+
+def test_sushi(sushi):
+    assert sushi.name
+    assert sushi.ingredients
+```
+
+# Test run
+
+When running the tests we can see that ``test_sushi`` is run eight times as
+expected as its only fixture ``sushi`` is created with eight parameters.
+
+On the other hand ``test_fooshi_serves_vegetarian_sushi`` is run six times combining
+one value for ``fooshi_bar``, two values for ``side_dish`` and three values for
+``sushi``!
+
+``$ py.test test_sushi.py``
+
+```
+test_sushi.py::test_fooshi_serves_vegetarian_sushi[Edamame-Kappa Maki] PASSED
+test_sushi.py::test_fooshi_serves_vegetarian_sushi[Edamame-Tamagoyaki] PASSED
+test_sushi.py::test_fooshi_serves_vegetarian_sushi[Edamame-Inarizushi] PASSED
+test_sushi.py::test_fooshi_serves_vegetarian_sushi[Miso Soup-Kappa Maki] PASSED
+test_sushi.py::test_fooshi_serves_vegetarian_sushi[Miso Soup-Tamagoyaki] PASSED
+test_sushi.py::test_fooshi_serves_vegetarian_sushi[Miso Soup-Inarizushi] PASSED
+test_sushi.py::test_sushi[California Roll] PASSED
+test_sushi.py::test_sushi[Ebi Nigiri] PASSED
+test_sushi.py::test_sushi[Inarizushi] PASSED
+test_sushi.py::test_sushi[Kappa Maki] PASSED
+test_sushi.py::test_sushi[Maguro Nigiri] PASSED
+test_sushi.py::test_sushi[Sake Nigiri] PASSED
+test_sushi.py::test_sushi[Tamagoyaki] PASSED
+test_sushi.py::test_sushi[Tsunamayo Maki] PASSED
+
+========================== 14 passed in 0.02 seconds ==========================
+```
+
+# Deferred loading of resources with hooks
+
+Since test parametrization is performed at collection time, you might want to
+set up expensive resources only when the tests that use it are being run.
+
+You can achieve this by using ``indirect`` and doing the hard work in fixtures
+rather than helper function. This is also available from the
+``pytest_generate_tests`` hook:
+
+```python
+def pytest_generate_tests(metafunc):
+    if 'db' in metafunc.fixturenames:
+        metafunc.parametrize("db", ['d1', 'd2'], indirect=True)
+```
+
+For more information see [pytest docs](http://pytest.org/latest/example/parametrize.html#deferring-the-setup-of-parametrized-resources).
+
+---
+date: 2016-07-10
+---
+docs: http://pytest.org/latest/example/parametrize.html#apply-indirect-on-particular-arguments
+---
+tags:
+
+marker
+fixture
+parametrize
+indirect
+hook
+---
+tldr: Defer setup code and invoke fixtures from ``@pytest.mark.parametrize``
+with ``indirect``.
