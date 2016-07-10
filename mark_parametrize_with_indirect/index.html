@@ -1,0 +1,285 @@
+<!doctype html>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../static/gen/styles.css?h=3e7c0aad">
+<script type=text/javascript src="../static/gen/app.js?h=6fd13599" charset="utf-8"></script>
+<link rel="stylesheet" href="../static/pygments.css">
+<title>mark.parametrize with indirect (2016) — pytest-tricks</title>
+<body>
+    <header>
+        <div class="container">
+            <h1><a href="../">pytest-tricks</a></h1>
+        </div>
+    </header>
+    <hr>
+    <div class="container page">
+        
+<div class="jumbotron">
+    <div class="row">
+        <div class="col-md-6">
+            <h2>mark.parametrize with indirect</h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <dl>
+                <dt>Date
+                <dd>Jul 10, 2016
+                <dt>Author
+                <dd><a href="https://twitter.com/hackebrot">@hackebrot</a>
+                
+                    <dt>Documentation
+                    <dd><a href="http://pytest.org/latest/example/parametrize.html#apply-indirect-on-particular-arguments">http://pytest.org/latest/</a>
+                
+                
+                    <dt>Tags
+                    <dd>fixture, hook, indirect, marker, parametrize
+                
+            </dl>
+        </div>
+        <div class="col-md-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title"><strong>TL;DR</strong></h3>
+                </div>
+                <div class="panel-body">
+                    <p>Defer setup code and invoke fixtures from <code>@pytest.mark.parametrize</code>
+with <code>indirect</code>.</p>
+
+                </div>
+            </div>
+            <a href="https://twitter.com/share" class="twitter-share-button" data-text="mark.parametrize with indirect" data-via="hackebrot" data-size="large" data-related="pytestdotorg" data-hashtags="python,pytest">Tweet</a>
+            <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+            <a href="https://twitter.com/hackebrot" class="twitter-follow-button" data-show-count="false" data-size="large">Follow @hackebrot</a>
+            <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+            <a aria-label="Star hackebrot/pytest-tricks on GitHub" data-style="mega" href="https://github.com/hackebrot/pytest-tricks" class="github-button">Star</a>
+            <a aria-label="Fork hackebrot/pytest-tricks on GitHub" data-style="mega" href="https://github.com/hackebrot/pytest-tricks/fork" class="github-button">Fork</a>
+            <script async defer id="github-bjs" src="https://buttons.github.io/buttons.js"></script>
+        </div>
+    </div>
+</div>
+<p id="content"><h1>mark.parametrize</h1>
+<p>In <a href="http://hackebrot.github.io/pytest-tricks/create_tests_via_parametrization/">Create Tests via Parametrization</a> we've learned how to
+use <code>@pytest.mark.parametrize</code> to generate a number of test cases for
+one test.</p>
+<h1>indirect</h1>
+<p>You can pass a keyword argument named <code>indirect</code> to <code>parametrize</code> to change
+how its parameters are being passed to the underlying test function. It accepts
+either a <strong>boolean value</strong> or a <strong>list of strings</strong> that refer to
+<code>pytest.fixure</code> functions.</p>
+<h2>False</h2>
+<p>If you set <code>indirect</code> to <code>False</code> or omit the parameter altogether, pytest
+will treat the given parameters as is w/o any specialties.</p>
+<h2>True</h2>
+<p>All of the parameters are stored on the special <code>request</code> fixture. Other
+fixtures can then access it via <code>request.param</code> and modify the test
+parameter.</p>
+<h2>List of fixture names</h2>
+<p>You can choose to only set <code>indirect</code> for a subset of arguments, by passing a
+list to the keyword argument: <code>indirect=['foo', 'bar']</code>.</p>
+<h1>Example code</h1>
+<p>We define to classes that have a few fields to hold information. The tests will
+access the attributes to check for correctness of our code. For that we create
+a number of instances of the <code>Sushi</code> class with varying parameters, before we
+call its property <code>is_vegetarian</code> in the test to see if the <em>Fooshi Bar</em>
+offers a few vegetarian dishes.</p>
+<p><code>sushi.py</code></p>
+<div class="highlight"><pre><span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+
+<span class="k">class</span> <span class="nc">Restaurant</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">menu</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">menu</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">location</span> <span class="o">=</span> <span class="n">location</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">menu</span> <span class="o">=</span> <span class="n">menu</span>
+
+
+<span class="k">class</span> <span class="nc">Sushi</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">ingredients</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">ingredients</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ingredients</span> <span class="o">=</span> <span class="n">ingredients</span>
+
+    <span class="k">def</span> <span class="nf">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ingredient</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">ingredient</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ingredients</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_vegetarian</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">ingredient</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;Crab&#39;</span><span class="p">,</span> <span class="s1">&#39;Salmon&#39;</span><span class="p">,</span> <span class="s1">&#39;Shrimp&#39;</span><span class="p">,</span> <span class="s1">&#39;Tuna&#39;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">ingredient</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">False</span>
+        <span class="k">return</span> <span class="bp">True</span>
+</pre></div>
+<h2>Fixtures</h2>
+<p>A fixture named <code>fooshi_bar</code> creates a <code>Restaurant</code> with a variety of
+dishes on the menu.</p>
+<p>The fixture <code>sushi</code> creates the instances based on a name and looking up
+ingredients from the <code>session</code> scoped <code>recipes</code> fixture when the test is
+being run. Since it is created with <code>params</code> it will not  only yield one but
+many instances. pytest will then create a number of test items for each of the
+test function that uses it.</p>
+<p><code>conftest.py</code></p>
+<div class="highlight"><pre><span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="kn">import</span> <span class="nn">pytest</span>
+
+<span class="kn">from</span> <span class="nn">sushi</span> <span class="kn">import</span> <span class="n">Restaurant</span><span class="p">,</span> <span class="n">Sushi</span>
+
+
+<span class="nd">@pytest.fixture</span>
+<span class="k">def</span> <span class="nf">fooshi_bar</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Returns a Restaurant instance with a great menu.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">Restaurant</span><span class="p">(</span>
+        <span class="s1">&#39;Fooshi Bar&#39;</span><span class="p">,</span>
+        <span class="n">location</span><span class="o">=</span><span class="s1">&#39;Buenos Aires&#39;</span><span class="p">,</span>
+        <span class="n">menu</span><span class="o">=</span><span class="p">[</span>
+            <span class="s1">&#39;Ebi Nigiri&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;Edamame&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;Inarizushi&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;Kappa Maki&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;Miso Soup&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;Sake Nigiri&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;Tamagoyaki&#39;</span><span class="p">,</span>
+        <span class="p">],</span>
+    <span class="p">)</span>
+
+
+<span class="nd">@pytest.fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">&#39;session&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">recipes</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Return a map from types of sushi to ingredients.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s1">&#39;California Roll&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;Rice&#39;</span><span class="p">,</span> <span class="s1">&#39;Cucumber&#39;</span><span class="p">,</span> <span class="s1">&#39;Avocado&#39;</span><span class="p">,</span> <span class="s1">&#39;Crab&#39;</span><span class="p">],</span>
+        <span class="s1">&#39;Ebi Nigiri&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;Shrimp&#39;</span><span class="p">,</span> <span class="s1">&#39;Rice&#39;</span><span class="p">],</span>
+        <span class="s1">&#39;Inarizushi&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;Fried tofu&#39;</span><span class="p">,</span> <span class="s1">&#39;Rice&#39;</span><span class="p">],</span>
+        <span class="s1">&#39;Kappa Maki&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;Cucumber&#39;</span><span class="p">,</span> <span class="s1">&#39;Rice&#39;</span><span class="p">,</span> <span class="s1">&#39;Nori&#39;</span><span class="p">],</span>
+        <span class="s1">&#39;Maguro Nigiri&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;Tuna&#39;</span><span class="p">,</span> <span class="s1">&#39;Rice&#39;</span><span class="p">,</span> <span class="s1">&#39;Nori&#39;</span><span class="p">],</span>
+        <span class="s1">&#39;Sake Nigiri&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;Salmon&#39;</span><span class="p">,</span> <span class="s1">&#39;Rice&#39;</span><span class="p">,</span> <span class="s1">&#39;Nori&#39;</span><span class="p">],</span>
+        <span class="s1">&#39;Tamagoyaki&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;Fried egg&#39;</span><span class="p">,</span> <span class="s1">&#39;Rice&#39;</span><span class="p">,</span> <span class="s1">&#39;Nori&#39;</span><span class="p">],</span>
+        <span class="s1">&#39;Tsunamayo Maki&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;Tuna&#39;</span><span class="p">,</span> <span class="s1">&#39;Mayonnaise&#39;</span><span class="p">],</span>
+    <span class="p">}</span>
+
+
+<span class="nd">@pytest.fixture</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="p">[</span>
+    <span class="s1">&#39;California Roll&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;Ebi Nigiri&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;Inarizushi&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;Kappa Maki&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;Maguro Nigiri&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;Sake Nigiri&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;Tamagoyaki&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;Tsunamayo Maki&#39;</span><span class="p">,</span>
+<span class="p">])</span>
+<span class="k">def</span> <span class="nf">sushi</span><span class="p">(</span><span class="n">recipes</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create a Sushi instance based on recipes.&quot;&quot;&quot;</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">param</span>
+    <span class="k">return</span> <span class="n">Sushi</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">ingredients</span><span class="o">=</span><span class="n">recipes</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
+</pre></div>
+<h2>Tests</h2>
+<p>We define two test functions that both use the <code>sushi</code> fixture.
+<code>test_fooshi_serves_vegetarian_sushi</code> also uses <code>fooshi_bar</code> as well as
+<code>side_dish</code>, which is dynamically created during collection phase via
+<code>mark.parametrize</code>.</p>
+<p>Note how <code>sushi</code> is created with <code>indirect=True</code>. Unlike <code>side_dish</code> it
+will be passed on to the according fixture function which turns the name of a
+type of sushi to an actual instance as explained above.</p>
+<p><code>test_sushi.py</code></p>
+<div class="highlight"><pre><span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="kn">import</span> <span class="nn">pytest</span>
+
+
+<span class="nd">@pytest.mark.parametrize</span><span class="p">(</span>
+    <span class="s1">&#39;sushi&#39;</span><span class="p">,</span>
+    <span class="p">[</span><span class="s1">&#39;Kappa Maki&#39;</span><span class="p">,</span> <span class="s1">&#39;Tamagoyaki&#39;</span><span class="p">,</span> <span class="s1">&#39;Inarizushi&#39;</span><span class="p">],</span>
+    <span class="n">indirect</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="nd">@pytest.mark.parametrize</span><span class="p">(</span>
+    <span class="s1">&#39;side_dish&#39;</span><span class="p">,</span>
+    <span class="p">[</span><span class="s1">&#39;Edamame&#39;</span><span class="p">,</span> <span class="s1">&#39;Miso Soup&#39;</span><span class="p">],</span>
+<span class="p">)</span>
+<span class="k">def</span> <span class="nf">test_fooshi_serves_vegetarian_sushi</span><span class="p">(</span><span class="n">sushi</span><span class="p">,</span> <span class="n">side_dish</span><span class="p">,</span> <span class="n">fooshi_bar</span><span class="p">):</span>
+    <span class="k">assert</span> <span class="n">sushi</span><span class="o">.</span><span class="n">is_vegetarian</span>
+    <span class="k">assert</span> <span class="n">sushi</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">fooshi_bar</span><span class="o">.</span><span class="n">menu</span>
+    <span class="k">assert</span> <span class="n">side_dish</span> <span class="ow">in</span> <span class="n">fooshi_bar</span><span class="o">.</span><span class="n">menu</span>
+
+
+<span class="k">def</span> <span class="nf">test_sushi</span><span class="p">(</span><span class="n">sushi</span><span class="p">):</span>
+    <span class="k">assert</span> <span class="n">sushi</span><span class="o">.</span><span class="n">name</span>
+    <span class="k">assert</span> <span class="n">sushi</span><span class="o">.</span><span class="n">ingredients</span>
+</pre></div>
+<h1>Test run</h1>
+<p>When running the tests we can see that <code>test_sushi</code> is run eight times as
+expected as its only fixture <code>sushi</code> is created with eight parameters.</p>
+<p>On the other hand <code>test_fooshi_serves_vegetarian_sushi</code> is run six times combining
+one value for <code>fooshi_bar</code>, two values for <code>side_dish</code> and three values for
+<code>sushi</code>!</p>
+<p><code>$ py.test test_sushi.py</code></p>
+<pre><code>test_sushi.py::test_fooshi_serves_vegetarian_sushi[Edamame-Kappa Maki] PASSED
+test_sushi.py::test_fooshi_serves_vegetarian_sushi[Edamame-Tamagoyaki] PASSED
+test_sushi.py::test_fooshi_serves_vegetarian_sushi[Edamame-Inarizushi] PASSED
+test_sushi.py::test_fooshi_serves_vegetarian_sushi[Miso Soup-Kappa Maki] PASSED
+test_sushi.py::test_fooshi_serves_vegetarian_sushi[Miso Soup-Tamagoyaki] PASSED
+test_sushi.py::test_fooshi_serves_vegetarian_sushi[Miso Soup-Inarizushi] PASSED
+test_sushi.py::test_sushi[California Roll] PASSED
+test_sushi.py::test_sushi[Ebi Nigiri] PASSED
+test_sushi.py::test_sushi[Inarizushi] PASSED
+test_sushi.py::test_sushi[Kappa Maki] PASSED
+test_sushi.py::test_sushi[Maguro Nigiri] PASSED
+test_sushi.py::test_sushi[Sake Nigiri] PASSED
+test_sushi.py::test_sushi[Tamagoyaki] PASSED
+test_sushi.py::test_sushi[Tsunamayo Maki] PASSED
+
+========================== 14 passed in 0.02 seconds ==========================
+</code></pre>
+<h1>Deferred loading of resources with hooks</h1>
+<p>Since test parametrization is performed at collection time, you might want to
+set up expensive resources only when the tests that use it are being run.</p>
+<p>You can achieve this by using <code>indirect</code> and doing the hard work in fixtures
+rather than helper function. This is also available from the
+<code>pytest_generate_tests</code> hook:</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">pytest_generate_tests</span><span class="p">(</span><span class="n">metafunc</span><span class="p">):</span>
+    <span class="k">if</span> <span class="s1">&#39;db&#39;</span> <span class="ow">in</span> <span class="n">metafunc</span><span class="o">.</span><span class="n">fixturenames</span><span class="p">:</span>
+        <span class="n">metafunc</span><span class="o">.</span><span class="n">parametrize</span><span class="p">(</span><span class="s2">&quot;db&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;d1&#39;</span><span class="p">,</span> <span class="s1">&#39;d2&#39;</span><span class="p">],</span> <span class="n">indirect</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+<p>For more information see <a href="http://pytest.org/latest/example/parametrize.html#deferring-the-setup-of-parametrized-resources">pytest docs</a>.</p>
+</p>
+<div class="comment-box">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title"><strong>COMMENTS</strong></h3>
+        </div>
+        <div class="panel-body">
+            <div class="comments">
+<div id="disqus_thread"></div>
+<script>
+  var disqus_config = function() { this.page.identifier = "/mark_parametrize_with_indirect"; this.page.url = "http://hackebrot.github.io/pytest-tricks/mark_parametrize_with_indirect/"; };
+  (function() {
+    var d = document, s = d.createElement('script');
+    s.src = '//pytest-tricks.disqus.com/embed.js';
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+  })();
+</script>
+<noscript>
+  Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript"
+    rel="nofollow">comments powered by Disqus.</a>
+</noscript>
+</div>
+        </div>
+    </div>
+</div>
+
+    </div>
+    <hr>
+    <footer>
+        <div class="container">
+            &copy; Copyright 2016 by Raphael Pierzina and pytest-dev team.
+            <br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
+            <br />Built with <a href="https://www.getlektor.com/">Lektor</a>. Fork me on <a href="https://github.com/hackebrot/pytest-tricks/">GitHub</a>.
+        </div>
+    </footer>
+</body>
