@@ -201,7 +201,7 @@ type of sushi to an actual instance as explained above.</p>
     <span class="s1">&#39;side_dish&#39;</span><span class="p">,</span>
     <span class="p">[</span><span class="s1">&#39;Edamame&#39;</span><span class="p">,</span> <span class="s1">&#39;Miso Soup&#39;</span><span class="p">],</span>
 <span class="p">)</span>
-<span class="k">def</span> <span class="nf">test_fooshi_serves_vegetarian_sushi</span><span class="p">(</span><span class="n">sushi</span><span class="p">,</span> <span class="n">side_dish</span><span class="p">,</span> <span class="n">fooshi_bar</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">test_fooshi_serves_vegetarian_sushi</span><span class="p">(</span><span class="n">fooshi_bar</span><span class="p">,</span> <span class="n">sushi</span><span class="p">,</span> <span class="n">side_dish</span><span class="p">):</span>
     <span class="k">assert</span> <span class="n">sushi</span><span class="o">.</span><span class="n">is_vegetarian</span>
     <span class="k">assert</span> <span class="n">sushi</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">fooshi_bar</span><span class="o">.</span><span class="n">menu</span>
     <span class="k">assert</span> <span class="n">side_dish</span> <span class="ow">in</span> <span class="n">fooshi_bar</span><span class="o">.</span><span class="n">menu</span>
