@@ -81,7 +81,7 @@ class Sushi:
 ## Fixtures
 
 A fixture named ``fooshi_bar`` creates a ``Restaurant`` with a variety of
-dishes on the menu. 
+dishes on the menu.
 
 The fixture ``sushi`` creates the instances based on a name and looking up
 ingredients from the ``session`` scoped ``recipes`` fixture when the test is
@@ -176,7 +176,7 @@ import pytest
     'side_dish',
     ['Edamame', 'Miso Soup'],
 )
-def test_fooshi_serves_vegetarian_sushi(sushi, side_dish, fooshi_bar):
+def test_fooshi_serves_vegetarian_sushi(fooshi_bar, sushi, side_dish):
     assert sushi.is_vegetarian
     assert sushi.name in fooshi_bar.menu
     assert side_dish in fooshi_bar.menu

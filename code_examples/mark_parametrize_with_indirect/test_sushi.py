@@ -12,7 +12,7 @@ import pytest
     'side_dish',
     ['Edamame', 'Miso Soup'],
 )
-def test_fooshi_serves_vegetarian_sushi(sushi, side_dish, fooshi_bar):
+def test_fooshi_serves_vegetarian_sushi(fooshi_bar, sushi, side_dish):
     assert sushi.is_vegetarian
     assert sushi.name in fooshi_bar.menu
     assert side_dish in fooshi_bar.menu
