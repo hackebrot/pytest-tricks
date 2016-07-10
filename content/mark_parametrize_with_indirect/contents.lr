@@ -228,8 +228,12 @@ rather than helper functions directly. This is also available from the
 
 ```python
 def pytest_generate_tests(metafunc):
-    if 'db' in metafunc.fixturenames:
-        metafunc.parametrize("db", ['d1', 'd2'], indirect=True)
+    if 'sushi' in metafunc.fixturenames:
+        metafunc.parametrize(
+            'sushi',
+            ['Kappa Maki', 'Tamagoyaki', 'Inarizushi'],
+            indirect=True,
+        )
 ```
 
 For more information see the [parametrize pytest docs](http://pytest.org/latest/example/parametrize.html#deferring-the-setup-of-parametrized-resources).
