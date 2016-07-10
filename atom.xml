@@ -38,11 +38,11 @@ parameter.&lt;/p&gt;
 &lt;p&gt;You can choose to only set &lt;code&gt;indirect&lt;/code&gt; for a subset of arguments, by passing a
 list to the keyword argument: &lt;code&gt;indirect=['foo', 'bar']&lt;/code&gt;.&lt;/p&gt;
 &lt;h1&gt;Example code&lt;/h1&gt;
-&lt;p&gt;We define to classes that have a few fields to hold information. The tests will
-access the attributes to check for correctness of our code. For that we create
-a number of instances of the &lt;code&gt;Sushi&lt;/code&gt; class with varying parameters, before we
-call its property &lt;code&gt;is_vegetarian&lt;/code&gt; in the test to see if the &lt;em&gt;Fooshi Bar&lt;/em&gt;
-offers a few vegetarian dishes.&lt;/p&gt;
+&lt;p&gt;We define two classes that have a few fields to hold information. The tests
+will access the attributes to check for correctness of our code. For that we
+create a number of instances of the &lt;code&gt;Sushi&lt;/code&gt; class with varying parameters,
+before we call its property &lt;code&gt;is_vegetarian&lt;/code&gt; in the test to see if the &lt;em&gt;Fooshi
+Bar&lt;/em&gt; offers a few vegetarian dishes.&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;sushi.py&lt;/code&gt;&lt;/p&gt;
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&quot;c1&quot;&gt;# -*- coding: utf-8 -*-&lt;/span&gt;
 
@@ -78,7 +78,7 @@ offers a few vegetarian dishes.&lt;/p&gt;
 &lt;h2&gt;Fixtures&lt;/h2&gt;
 &lt;p&gt;A fixture named &lt;code&gt;fooshi_bar&lt;/code&gt; creates a &lt;code&gt;Restaurant&lt;/code&gt; with a variety of
 dishes on the menu.&lt;/p&gt;
-&lt;p&gt;The fixture &lt;code&gt;sushi&lt;/code&gt; creates the instances based on a name and looking up
+&lt;p&gt;The fixture &lt;code&gt;sushi&lt;/code&gt; creates instances based on a name and looking up
 ingredients from the &lt;code&gt;session&lt;/code&gt; scoped &lt;code&gt;recipes&lt;/code&gt; fixture when the test is
 being run. Since it is created with &lt;code&gt;params&lt;/code&gt; it will not  only yield one but
 many instances. pytest will then create a number of test items for each of the
@@ -173,7 +173,7 @@ type of sushi to an actual instance as explained above.&lt;/p&gt;
     &lt;span class=&quot;k&quot;&gt;assert&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sushi&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ingredients&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;h1&gt;Test run&lt;/h1&gt;
-&lt;p&gt;When running the tests we can see that &lt;code&gt;test_sushi&lt;/code&gt; is run eight times as
+&lt;p&gt;When running these tests we can see that &lt;code&gt;test_sushi&lt;/code&gt; is run eight times as
 expected as its only fixture &lt;code&gt;sushi&lt;/code&gt; is created with eight parameters.&lt;/p&gt;
 &lt;p&gt;On the other hand &lt;code&gt;test_fooshi_serves_vegetarian_sushi&lt;/code&gt; is run six times combining
 one value for &lt;code&gt;fooshi_bar&lt;/code&gt;, two values for &lt;code&gt;side_dish&lt;/code&gt; and three values for
@@ -200,13 +200,13 @@ test_sushi.py::test_sushi[Tsunamayo Maki] PASSED
 &lt;p&gt;Since test parametrization is performed at collection time, you might want to
 set up expensive resources only when the tests that use it are being run.&lt;/p&gt;
 &lt;p&gt;You can achieve this by using &lt;code&gt;indirect&lt;/code&gt; and doing the hard work in fixtures
-rather than helper function. This is also available from the
+rather than helper functions directly. This is also available from the
 &lt;code&gt;pytest_generate_tests&lt;/code&gt; hook:&lt;/p&gt;
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;pytest_generate_tests&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;metafunc&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
     &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&amp;#39;db&amp;#39;&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;metafunc&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;fixturenames&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
         &lt;span class=&quot;n&quot;&gt;metafunc&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;parametrize&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&amp;quot;db&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&amp;#39;d1&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&amp;#39;d2&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;indirect&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;True&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;For more information see &lt;a href=&quot;http://pytest.org/latest/example/parametrize.html#deferring-the-setup-of-parametrized-resources&quot;&gt;pytest docs&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;For more information see the &lt;a href=&quot;http://pytest.org/latest/example/parametrize.html#deferring-the-setup-of-parametrized-resources&quot;&gt;parametrize pytest docs&lt;/a&gt;.&lt;/p&gt;
 </content>
   </entry>
   <entry xml:base="http://hackebrot.github.io/pytest-tricks/customize_class_collection/">

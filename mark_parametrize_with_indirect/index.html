@@ -77,11 +77,11 @@ parameter.</p>
 <p>You can choose to only set <code>indirect</code> for a subset of arguments, by passing a
 list to the keyword argument: <code>indirect=['foo', 'bar']</code>.</p>
 <h1>Example code</h1>
-<p>We define to classes that have a few fields to hold information. The tests will
-access the attributes to check for correctness of our code. For that we create
-a number of instances of the <code>Sushi</code> class with varying parameters, before we
-call its property <code>is_vegetarian</code> in the test to see if the <em>Fooshi Bar</em>
-offers a few vegetarian dishes.</p>
+<p>We define two classes that have a few fields to hold information. The tests
+will access the attributes to check for correctness of our code. For that we
+create a number of instances of the <code>Sushi</code> class with varying parameters,
+before we call its property <code>is_vegetarian</code> in the test to see if the <em>Fooshi
+Bar</em> offers a few vegetarian dishes.</p>
 <p><code>sushi.py</code></p>
 <div class="highlight"><pre><span></span><span class="c1"># -*- coding: utf-8 -*-</span>
 
@@ -117,7 +117,7 @@ offers a few vegetarian dishes.</p>
 <h2>Fixtures</h2>
 <p>A fixture named <code>fooshi_bar</code> creates a <code>Restaurant</code> with a variety of
 dishes on the menu.</p>
-<p>The fixture <code>sushi</code> creates the instances based on a name and looking up
+<p>The fixture <code>sushi</code> creates instances based on a name and looking up
 ingredients from the <code>session</code> scoped <code>recipes</code> fixture when the test is
 being run. Since it is created with <code>params</code> it will not  only yield one but
 many instances. pytest will then create a number of test items for each of the
@@ -212,7 +212,7 @@ type of sushi to an actual instance as explained above.</p>
     <span class="k">assert</span> <span class="n">sushi</span><span class="o">.</span><span class="n">ingredients</span>
 </pre></div>
 <h1>Test run</h1>
-<p>When running the tests we can see that <code>test_sushi</code> is run eight times as
+<p>When running these tests we can see that <code>test_sushi</code> is run eight times as
 expected as its only fixture <code>sushi</code> is created with eight parameters.</p>
 <p>On the other hand <code>test_fooshi_serves_vegetarian_sushi</code> is run six times combining
 one value for <code>fooshi_bar</code>, two values for <code>side_dish</code> and three values for
@@ -239,13 +239,13 @@ test_sushi.py::test_sushi[Tsunamayo Maki] PASSED
 <p>Since test parametrization is performed at collection time, you might want to
 set up expensive resources only when the tests that use it are being run.</p>
 <p>You can achieve this by using <code>indirect</code> and doing the hard work in fixtures
-rather than helper function. This is also available from the
+rather than helper functions directly. This is also available from the
 <code>pytest_generate_tests</code> hook:</p>
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">pytest_generate_tests</span><span class="p">(</span><span class="n">metafunc</span><span class="p">):</span>
     <span class="k">if</span> <span class="s1">&#39;db&#39;</span> <span class="ow">in</span> <span class="n">metafunc</span><span class="o">.</span><span class="n">fixturenames</span><span class="p">:</span>
         <span class="n">metafunc</span><span class="o">.</span><span class="n">parametrize</span><span class="p">(</span><span class="s2">&quot;db&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;d1&#39;</span><span class="p">,</span> <span class="s1">&#39;d2&#39;</span><span class="p">],</span> <span class="n">indirect</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 </pre></div>
-<p>For more information see <a href="http://pytest.org/latest/example/parametrize.html#deferring-the-setup-of-parametrized-resources">pytest docs</a>.</p>
+<p>For more information see the <a href="http://pytest.org/latest/example/parametrize.html#deferring-the-setup-of-parametrized-resources">parametrize pytest docs</a>.</p>
 </p>
 <div class="comment-box">
     <div class="panel panel-default">
