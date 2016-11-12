@@ -324,7 +324,7 @@ classes, by modifying the ``__repr__`` or ``__str__`` magic methods, just so
 that you get this extra convenience in your tests. Instead I would encourage
 you to try out this hook.
 
-Let's have an example for how this hook works:
+Let's have a look at how this hook works:
 
 ```python
 PYTEST_PLUGIN = CookiecutterTemplate(
