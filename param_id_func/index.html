@@ -1,0 +1,471 @@
+<!doctype html>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../static/gen/styles.css?h=3e7c0aad">
+<script type=text/javascript src="../static/gen/app.js?h=d3372432" charset="utf-8"></script>
+<link rel="stylesheet" href="../static/pygments.css">
+<title>ids for fixtures and parametrize (2016) — pytest-tricks</title>
+<body>
+    <header>
+        <div class="container">
+            <h1><a href="../">pytest-tricks</a></h1>
+        </div>
+    </header>
+    <hr>
+    <div class="container page">
+        
+<div class="jumbotron">
+    <div class="row">
+        <div class="col-md-6">
+            <h2>ids for fixtures and parametrize</h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <dl>
+                <dt>Date
+                <dd>Nov 12, 2016
+                <dt>Author
+                <dd><a href="https://twitter.com/hackebrot">@hackebrot</a>
+                
+                    <dt>Documentation
+                    <dd><a href="http://doc.pytest.org/en/latest/parametrize.html#_pytest.python.Metafunc.parametrize">http://pytest.org/latest/</a>
+                
+                
+                    <dt>Tags
+                    <dd>fixture, ids, parametrize, pytest_make_parametrize_id
+                
+            </dl>
+        </div>
+        <div class="col-md-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title"><strong>TL;DR</strong></h3>
+                </div>
+                <div class="panel-body">
+                    <p>Set ids explicitely with a <code>str</code> or generate them with a callable or
+the <code>pytest_make_parametrize_id</code> hook.</p>
+
+                </div>
+            </div>
+            <a href="https://twitter.com/share" class="twitter-share-button" data-text="ids for fixtures and parametrize" data-via="hackebrot" data-size="large" data-related="pytestdotorg" data-hashtags="python,pytest">Tweet</a>
+            <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+            <a href="https://twitter.com/hackebrot" class="twitter-follow-button" data-show-count="false" data-size="large">Follow @hackebrot</a>
+            <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+            <a aria-label="Star hackebrot/pytest-tricks on GitHub" data-style="mega" href="https://github.com/hackebrot/pytest-tricks" class="github-button">Star</a>
+            <a aria-label="Fork hackebrot/pytest-tricks on GitHub" data-style="mega" href="https://github.com/hackebrot/pytest-tricks/fork" class="github-button">Fork</a>
+            <script async defer id="github-bjs" src="https://buttons.github.io/buttons.js"></script>
+        </div>
+    </div>
+</div>
+<p id="content"><h1>parameters for tests</h1>
+<p><strong>pytest</strong> comes with a handful of powerful tools to generate parameters for a
+test, so you can run various scenarios against the same test implementation.</p>
+<ul>
+<li><code>params</code> on a <code>@pytest.fixture</code></li>
+<li><code>parametrize</code> marker</li>
+<li><code>pytest_generate_tests</code> hook with <code>metafunc.parametrize</code></li>
+</ul>
+<p>All of the above have their individual strengths and weaknessses. In this post
+I'd like to cover ids for tests and why I think it's a good idea to use them.</p>
+<p>Please check out older posts on this blog to find out more about
+parametrization in pytest, if you haven't already.</p>
+<ul>
+<li><a href="http://hackebrot.github.io/pytest-tricks/create_tests_via_parametrization/">create tests via parametrization</a></li>
+<li><a href="http://hackebrot.github.io/pytest-tricks/mark_parametrize_with_indirect/">mark.parametrize with indirect</a></li>
+</ul>
+<h1>test items</h1>
+<p>To understand how <strong>pytest</strong> generates ids for tests, we first need to know
+what test items are.</p>
+<p>For <strong>pytest</strong> a test item is a single test, defined by an underlying test
+function along with the setup and teardown code for the fixtures it uses.
+Essentially, everything we need to run a test. Suffice to say that this is a
+slightly simplified explanation, but that's all we need to know for now.</p>
+<p>Here's a code example for clarification:</p>
+<div class="highlight"><pre><span></span><span class="nd">@pytest.mark.parametrize</span><span class="p">(</span>
+    <span class="s1">&#39;number, word&#39;</span><span class="p">,</span> <span class="p">[</span>
+        <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;1&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;fizz&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="s1">&#39;buzz&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="s1">&#39;8&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="s1">&#39;buzz&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="s1">&#39;fizzbuzz&#39;</span><span class="p">),</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+<span class="k">def</span> <span class="nf">test_fizzbuzz</span><span class="p">(</span><span class="n">number</span><span class="p">,</span> <span class="n">word</span><span class="p">):</span>
+    <span class="k">assert</span> <span class="n">fizzbuzz</span><span class="p">(</span><span class="n">number</span><span class="p">)</span> <span class="o">==</span> <span class="n">word</span>
+</pre></div>
+<p>There is a single test function in above code example. It calls a function
+called <code>fizzbuzz</code> with an integer and checks that its return value matches a
+certain string.</p>
+<p>Now when we run this, <strong>pytest</strong> creates a number of test items under the hood.</p>
+<ul>
+<li>Item with function: <code>test_fizzbuzz</code>, number: <code>1</code>, word: <code>'1'</code></li>
+<li>Item with function: <code>test_fizzbuzz</code>, number: <code>3</code>, word: <code>'fizz'</code></li>
+<li>Item with function: <code>test_fizzbuzz</code>, number: <code>5</code>, word: <code>'buzz'</code></li>
+<li>Item with function: <code>test_fizzbuzz</code>, number: <code>8</code>, word: <code>'8'</code></li>
+<li>Item with function: <code>test_fizzbuzz</code>, number: <code>10</code>, word: <code>'buzz'</code></li>
+<li>Item with function: <code>test_fizzbuzz</code>, number: <code>15</code>, word: <code>'fizzbuzz'</code></li>
+</ul>
+<p>This is exactly what we can see in the test result log when running <strong>pytest</strong>
+in normal mode (not quiet or verbose).</p>
+<h1>what are ids?</h1>
+<p>Now <strong>pytest</strong> lets us add <em>ids</em> to test items to make them easier to
+distinguish in the log, especially in verbose mode.</p>
+<h2>auto-generated ids</h2>
+<p>If you leave it up to <strong>pytest</strong> to generate ids, you will see that most of
+them are pretty good, but others feel somewhat random. The reason being that
+<em>non-primitive</em> types such as <code>dict</code>, <code>list</code>, <code>tuple</code> or instances of
+<code>classes</code> are non trivial to translate into ids.</p>
+<p>The following test is parametrized and the id for a test item will be a
+representation for <strong>each individual parameter</strong> - joined with a <code>-</code>.</p>
+<div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">CookiecutterTemplate</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="n">url</span>
+
+<span class="n">PYTEST_PLUGIN</span> <span class="o">=</span> <span class="n">CookiecutterTemplate</span><span class="p">(</span>
+    <span class="s1">&#39;pytest-plugin&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;https://github.com/pytest-dev/cookiecutter-pytest-plugin&#39;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="nd">@pytest.mark.parametrize</span><span class="p">(</span>
+    <span class="s1">&#39;a, b&#39;</span><span class="p">,</span>
+    <span class="p">[</span>
+        <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;Two Scoops of Django&#39;</span><span class="p">:</span> <span class="s1">&#39;1.8&#39;</span><span class="p">}),</span>
+        <span class="p">(</span><span class="bp">True</span><span class="p">,</span> <span class="s1">&#39;Into the Brambles&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">&#39;Jason likes cookies&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]),</span>
+        <span class="p">(</span><span class="n">PYTEST_PLUGIN</span><span class="p">,</span> <span class="s1">&#39;plugin_template&#39;</span><span class="p">),</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+<span class="k">def</span> <span class="nf">test_foobar</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+    <span class="k">assert</span> <span class="bp">True</span>
+</pre></div>
+<p><code>$ pytest -v</code> produces the following report:</p>
+<div class="highlight"><pre><span></span>============================ test session starts =============================
+collecting ... collected 4 items
+
+test_ids.py::test_foobar[1-b0] PASSED
+test_ids.py::test_foobar[True-Into the Brambles] PASSED
+test_ids.py::test_foobar[Jason likes cookies-b2] PASSED
+test_ids.py::test_foobar[a3-plugin_template] PASSED
+
+========================== 4 passed in 0.03 seconds ==========================
+</pre></div>
+<p>As you can see whenever <strong>pytest</strong> encounters one of the <em>non-primitives</em> it
+uses the fixture name with a suffix instead.</p>
+<p>For instance a tuple of str and list, such as:</p>
+<p><code>('Jason likes cookies', [1, 2, 3])</code></p>
+<p>is translated to</p>
+<p><code>Jason likes cookies-b2</code></p>
+<h2>explicit ids</h2>
+<p>The good news is that you can define ids yourself rather than leaving it up
+to <strong>pytest</strong> to somehow figure them out.</p>
+<div class="highlight"><pre><span></span><span class="n">PYTEST_PLUGIN</span> <span class="o">=</span> <span class="n">CookiecutterTemplate</span><span class="p">(</span>
+    <span class="s1">&#39;pytest-plugin&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;https://github.com/pytest-dev/cookiecutter-pytest-plugin&#39;</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="nd">@pytest.mark.parametrize</span><span class="p">(</span>
+    <span class="s1">&#39;a, b&#39;</span><span class="p">,</span>
+    <span class="p">[</span>
+        <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;Two Scoops of Django&#39;</span><span class="p">:</span> <span class="s1">&#39;1.8&#39;</span><span class="p">}),</span>
+        <span class="p">(</span><span class="bp">True</span><span class="p">,</span> <span class="s1">&#39;Into the Brambles&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">&#39;Jason likes cookies&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]),</span>
+        <span class="p">(</span><span class="n">PYTEST_PLUGIN</span><span class="p">,</span> <span class="s1">&#39;plugin_template&#39;</span><span class="p">),</span>
+    <span class="p">],</span> <span class="n">ids</span><span class="o">=</span><span class="p">[</span>
+        <span class="s1">&#39;int and dict&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;bool and str&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;str and list&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;CookiecutterTemplate and str&#39;</span><span class="p">,</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+<span class="k">def</span> <span class="nf">test_foobar</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+    <span class="k">assert</span> <span class="bp">True</span>
+</pre></div>
+<div class="highlight"><pre><span></span>============================ test session starts =============================
+collecting ... collected 4 items
+
+test_ids.py::test_foobar[int and dict] PASSED
+test_ids.py::test_foobar[bool and str] PASSED
+test_ids.py::test_foobar[str and list] PASSED
+test_ids.py::test_foobar[CookiecutterTemplate and str] PASSED
+
+========================== 4 passed in 0.01 seconds ==========================
+</pre></div>
+<p>Note that passing a list of <code>str</code> values to the <code>ids</code> keyword overwrites
+ids <strong>per parameter combination in a marker</strong> and <strong>not for individual
+parameters</strong>. See how there is no <code>-</code> in the logged ids?</p>
+<p>"Hey, you've talked about tests, items, ids, and now markers?!"</p>
+<p>I know...it can be confusing. I hope to make this as clear as possible as we
+go on. Hopefully in the end of this post, when reading the TL;DR, you know how
+ids work and how you can use them to make your test suite more maintainable.</p>
+<h2>markers</h2>
+<p>As I've mentioned earlier <code>str</code> id values are applied to a specific parameter
+combination of markers rather than test items or individual parameters. To
+illustrate this, let's have a look at the following code example.</p>
+<div class="highlight"><pre><span></span><span class="n">PYTEST_PLUGIN</span> <span class="o">=</span> <span class="n">CookiecutterTemplate</span><span class="p">(</span>
+    <span class="s1">&#39;pytest-plugin&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;https://github.com/pytest-dev/cookiecutter-pytest-plugin&#39;</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="nd">@pytest.mark.parametrize</span><span class="p">(</span>
+    <span class="s1">&#39;a, b&#39;</span><span class="p">,</span>
+    <span class="p">[</span>
+        <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;Two Scoops of Django&#39;</span><span class="p">:</span> <span class="s1">&#39;1.8&#39;</span><span class="p">}),</span>
+        <span class="p">(</span><span class="bp">True</span><span class="p">,</span> <span class="s1">&#39;Into the Brambles&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">&#39;Jason likes cookies&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]),</span>
+        <span class="p">(</span><span class="n">PYTEST_PLUGIN</span><span class="p">,</span> <span class="s1">&#39;plugin_template&#39;</span><span class="p">),</span>
+    <span class="p">],</span> <span class="n">ids</span><span class="o">=</span><span class="p">[</span>
+        <span class="s1">&#39;int and dict&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;bool and str&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;str and list&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;CookiecutterTemplate and str&#39;</span><span class="p">,</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+<span class="nd">@pytest.mark.parametrize</span><span class="p">(</span>
+    <span class="s1">&#39;c&#39;</span><span class="p">,</span>
+    <span class="p">[</span>
+        <span class="s1">&#39;hello world&#39;</span><span class="p">,</span>
+        <span class="mi">123</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="n">ids</span><span class="o">=</span><span class="p">[</span>
+        <span class="s1">&#39;str&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;int&#39;</span><span class="p">,</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+<span class="k">def</span> <span class="nf">test_foobar</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
+    <span class="k">assert</span> <span class="bp">True</span>
+</pre></div>
+<p>Above is the same test from the previous section, but uses an additional test
+parameter <code>c</code>, which is set up with another <code>parametrize</code> marker.</p>
+<p>So here's what you see when you would run this in <code>--verbose</code> mode:</p>
+<div class="highlight"><pre><span></span>============================ test session starts =============================
+collecting ... collected 8 items
+
+test_multiple_markers.py::test_foobar[str-int and dict] PASSED
+test_multiple_markers.py::test_foobar[str-bool and str] PASSED
+test_multiple_markers.py::test_foobar[str-str and list] PASSED
+test_multiple_markers.py::test_foobar[str-CookiecutterTemplate and str] PASSED
+test_multiple_markers.py::test_foobar[int-int and dict] PASSED
+test_multiple_markers.py::test_foobar[int-bool and str] PASSED
+test_multiple_markers.py::test_foobar[int-str and list] PASSED
+test_multiple_markers.py::test_foobar[int-CookiecutterTemplate and str] PASSED
+
+========================== 8 passed in 0.01 seconds ==========================
+</pre></div>
+<p>As you can see here from the printed ids, for instance <code>[int-bool and str]</code>,
+a string value is taken from each marker and joined with <code>-</code> as it would for
+the automatically generated ids.</p>
+<h2>ids callables</h2>
+<p>Instead of providing <code>str</code> values for test items, you can also pass in a
+function or method, that will be called for <strong>every single parameter</strong> and is
+expected to return a <code>str</code> id. Unlike <code>str</code> ids the function is called for
+every parameter!</p>
+<p>If your callable returns <code>None</code> pytest falls back to the autogenerated id for
+that particular parameter.</p>
+<div class="highlight"><pre><span></span><span class="n">PYTEST_PLUGIN</span> <span class="o">=</span> <span class="n">CookiecutterTemplate</span><span class="p">(</span>
+    <span class="s1">&#39;pytest-plugin&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;https://github.com/pytest-dev/cookiecutter-pytest-plugin&#39;</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">id_func</span><span class="p">(</span><span class="n">param</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">CookiecutterTemplate</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;template {.name}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
+
+
+<span class="nd">@pytest.mark.parametrize</span><span class="p">(</span>
+    <span class="s1">&#39;a, b&#39;</span><span class="p">,</span>
+    <span class="p">[</span>
+        <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;Two Scoops of Django&#39;</span><span class="p">:</span> <span class="s1">&#39;1.8&#39;</span><span class="p">}),</span>
+        <span class="p">(</span><span class="bp">True</span><span class="p">,</span> <span class="s1">&#39;Into the Brambles&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">&#39;Jason likes cookies&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]),</span>
+        <span class="p">(</span><span class="n">PYTEST_PLUGIN</span><span class="p">,</span> <span class="s1">&#39;plugin_template&#39;</span><span class="p">),</span>
+    <span class="p">],</span>
+    <span class="n">ids</span><span class="o">=</span><span class="n">id_func</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="nd">@pytest.mark.parametrize</span><span class="p">(</span>
+    <span class="s1">&#39;c&#39;</span><span class="p">,</span>
+    <span class="p">[</span>
+        <span class="s1">&#39;hello world&#39;</span><span class="p">,</span>
+        <span class="mi">123</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="n">ids</span><span class="o">=</span><span class="n">id_func</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="k">def</span> <span class="nf">test_foobar</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
+    <span class="k">assert</span> <span class="bp">True</span>
+</pre></div>
+<div class="highlight"><pre><span></span>============================ test session starts =============================
+collecting ... collected 8 items
+
+test_markers.py::test_foobar[&#39;hello world&#39;-1-{&#39;Two Scoops of Django&#39;: &#39;1.8&#39;}] PASSED
+test_markers.py::test_foobar[&#39;hello world&#39;-True-&#39;Into the Brambles&#39;] PASSED
+test_markers.py::test_foobar[&#39;hello world&#39;-&#39;Jason likes cookies&#39;-[1, 2, 3]] PASSED
+test_markers.py::test_foobar[&#39;hello world&#39;-template pytest-plugin-&#39;plugin_template&#39;] PASSED
+test_markers.py::test_foobar[123-1-{&#39;Two Scoops of Django&#39;: &#39;1.8&#39;}] PASSED
+test_markers.py::test_foobar[123-True-&#39;Into the Brambles&#39;] PASSED
+test_markers.py::test_foobar[123-&#39;Jason likes cookies&#39;-[1, 2, 3]] PASSED
+test_markers.py::test_foobar[123-template pytest-plugin-&#39;plugin_template&#39;] PASSED
+
+========================== 8 passed in 0.02 seconds ==========================
+</pre></div>
+<h2>id hook</h2>
+<p>A new hook called <code>pytest_make_parametrize_id</code> was added in pytest 3.0 that
+makes it easy to centralize id generation. One of the reasons why you might
+want to do this, is when you use instances of your custom classes for
+parametrized tests. I personally don't think it's a good idea to change the
+classes, by modifying the <code>__repr__</code> or <code>__str__</code> magic methods, just so
+that you get this extra convenience in your tests. Instead I would encourage
+you to try out this hook.</p>
+<p>Let's have an example for how this hook works:</p>
+<div class="highlight"><pre><span></span><span class="n">PYTEST_PLUGIN</span> <span class="o">=</span> <span class="n">CookiecutterTemplate</span><span class="p">(</span>
+    <span class="s1">&#39;pytest-plugin&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;https://github.com/pytest-dev/cookiecutter-pytest-plugin&#39;</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="nd">@pytest.mark.parametrize</span><span class="p">(</span>
+    <span class="s1">&#39;a, b&#39;</span><span class="p">,</span>
+    <span class="p">[</span>
+        <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;Two Scoops of Django&#39;</span><span class="p">:</span> <span class="s1">&#39;1.8&#39;</span><span class="p">}),</span>
+        <span class="p">(</span><span class="bp">True</span><span class="p">,</span> <span class="s1">&#39;Into the Brambles&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">&#39;Jason likes cookies&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]),</span>
+        <span class="p">(</span><span class="n">PYTEST_PLUGIN</span><span class="p">,</span> <span class="s1">&#39;plugin_template&#39;</span><span class="p">),</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+<span class="nd">@pytest.mark.parametrize</span><span class="p">(</span>
+    <span class="s1">&#39;c&#39;</span><span class="p">,</span>
+    <span class="p">[</span>
+        <span class="s1">&#39;hello world&#39;</span><span class="p">,</span>
+        <span class="mi">123</span><span class="p">,</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+<span class="k">def</span> <span class="nf">test_foobar</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
+    <span class="k">assert</span> <span class="bp">True</span>
+</pre></div>
+<p>The test and the markers are identical to the example from the previous
+section, except for the <code>ids</code> keyword argument in the markers.</p>
+<p>Now what we do instead is implementing the hook in a <strong>conftest.py</strong> file:</p>
+<div class="highlight"><pre><span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="kn">from</span> <span class="nn">templates</span> <span class="kn">import</span> <span class="n">CookiecutterTemplate</span>
+
+
+<span class="k">def</span> <span class="nf">pytest_make_parametrize_id</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">CookiecutterTemplate</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;template {.name}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+</pre></div>
+<p><code>val</code> is the value that will be passed into the test a particular parameter
+and <code>config</code> is the test run config, so you could check for command-line
+flags etc. if you want to.</p>
+<p>We effectively moved the implementation of our <code>id_func</code> to this hook, which
+means we don't need to set <code>ids</code> in all of the <code>@pytest.mark.parametrize</code>
+as long as we are happy with the way it generates ids. We can still overwrite
+them by explictly by setting a <code>str</code> id or passing in a callable.</p>
+<h1>fixtures</h1>
+<p>Ids for fixtures are in fact easier to understand as for <code>parametrize</code>
+markers, as they don't have any edge cases that you need to be aware of.
+Fixtures always return a single value, which means regardless of whether you
+use <code>str</code> ids, an id callable or the <code>pytest_make_parametrize_id</code> it will
+always be applied to this very parameter that the fixture returns.</p>
+<div class="highlight"><pre><span></span><span class="nd">@pytest.fixture</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="p">[</span>
+    <span class="n">CookiecutterTemplate</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s1">&#39;cookiecutter-pytest-plugin&#39;</span><span class="p">,</span>
+        <span class="n">url</span><span class="o">=</span><span class="s1">&#39;https://github.com/pytest-dev/cookiecutter-pytest-plugin&#39;</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">CookiecutterTemplate</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s1">&#39;cookiecutter-django&#39;</span><span class="p">,</span>
+        <span class="n">url</span><span class="o">=</span><span class="s1">&#39;https://github.com/pydanny/cookiecutter-django&#39;</span><span class="p">,</span>
+    <span class="p">),</span>
+<span class="p">],</span> <span class="n">ids</span><span class="o">=</span><span class="p">[</span>
+    <span class="s1">&#39;cookiecutter-pytest-plugin&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;cookiecutter-django&#39;</span>
+<span class="p">])</span>
+<span class="k">def</span> <span class="nf">plugin</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">request</span><span class="o">.</span><span class="n">param</span>
+
+
+<span class="nd">@pytest.fixture</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="p">[</span>
+    <span class="s1">&#39;pydanny&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;audreyr&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;michaeljoseph&#39;</span><span class="p">,</span>
+<span class="p">])</span>
+<span class="k">def</span> <span class="nf">github_user</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">request</span><span class="o">.</span><span class="n">param</span>
+
+
+<span class="k">def</span> <span class="nf">test_plugin</span><span class="p">(</span><span class="n">plugin</span><span class="p">,</span> <span class="n">github_user</span><span class="p">):</span>
+    <span class="k">assert</span> <span class="bp">True</span>
+</pre></div>
+<div class="highlight"><pre><span></span>============================ test session starts =============================
+collecting ... collected 6 items
+
+test_markers.py::test_plugin[cookiecutter-pytest-plugin-pydanny] PASSED
+test_markers.py::test_plugin[cookiecutter-pytest-plugin-audreyr] PASSED
+test_markers.py::test_plugin[cookiecutter-pytest-plugin-michaeljoseph] PASSED
+test_markers.py::test_plugin[cookiecutter-django-pydanny] PASSED
+test_markers.py::test_plugin[cookiecutter-django-audreyr] PASSED
+test_markers.py::test_plugin[cookiecutter-django-michaeljoseph] PASSED
+
+========================== 6 passed in 0.04 seconds ==========================
+</pre></div>
+<h1>Conclusion</h1>
+<ol>
+<li>If you don't set ids, pytest will generate them for you</li>
+<li>If you set them explicitely with <code>str</code> values
+ a. they are set for a <strong>parameter combination</strong> in case of
+ <code>@pytest.mark.parametrize</code>
+ b. or a value returned by <code>@pytest.fixture</code></li>
+<li>If you use a callable
+ a. it will be invoked for <strong>each parameter</strong> in case of
+ <code>@pytest.mark.parametrize</code>
+ b. or a value returned by <code>@pytest.fixture</code></li>
+<li>If you use the <code>pytest_make_parametrize_id</code> hook
+ a. it will be invoked for <strong>each parameter</strong> in case of
+ <code>@pytest.mark.parametrize</code>
+ b. or a value returned by <code>@pytest.fixture</code></li>
+</ol>
+<p>So the only thing to keep in mind really is that <code>str</code> ids for
+<code>pytest.mark.parametrize</code>.</p>
+<p>Hope this helps!</p>
+</p>
+<div class="comment-box">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title"><strong>COMMENTS</strong></h3>
+        </div>
+        <div class="panel-body">
+            <div class="comments">
+<div id="disqus_thread"></div>
+<script>
+  var disqus_config = function() { this.page.identifier = "/param_id_func"; this.page.url = "http://hackebrot.github.io/pytest-tricks/param_id_func/"; };
+  (function() {
+    var d = document, s = d.createElement('script');
+    s.src = '//pytest-tricks.disqus.com/embed.js';
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+  })();
+</script>
+<noscript>
+  Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript"
+    rel="nofollow">comments powered by Disqus.</a>
+</noscript>
+</div>
+        </div>
+    </div>
+</div>
+
+    </div>
+    <hr>
+    <footer>
+        <div class="container">
+            &copy; Copyright 2016 by Raphael Pierzina and pytest-dev team.
+            <br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
+            <br />Built with <a href="https://www.getlektor.com/">Lektor</a>. Fork me on <a href="https://github.com/hackebrot/pytest-tricks/">GitHub</a>.
+        </div>
+    </footer>
+</body>
