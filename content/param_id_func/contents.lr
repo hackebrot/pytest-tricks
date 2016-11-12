@@ -318,11 +318,12 @@ test_markers.py::test_foobar[123-template pytest-plugin-'plugin_template'] PASSE
 ## id hook
 
 A new hook called ``pytest_make_parametrize_id`` was added in pytest 3.0 that
-makes it easy to centralize id generation. One of the reason you might want to
-do this, is when you use instances of your custom classes for parametrized
-tests. I personally don't think it's a good idea to change the classes, by
-modifying the ``__repr__`` or ``__str__`` magic methods, just so that you get
-this extra convenience in your tests.
+makes it easy to centralize id generation. One of the reasons why you might
+want to do this, is when you use instances of your custom classes for
+parametrized tests. I personally don't think it's a good idea to change the
+classes, by modifying the ``__repr__`` or ``__str__`` magic methods, just so
+that you get this extra convenience in your tests. Instead I would encourage
+you to try out this hook.
 
 Let's have an example for how this hook works:
 
