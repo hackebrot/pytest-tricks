@@ -377,8 +377,8 @@ flags etc. if you want to.
 
 We effectively moved the implementation of our ``id_func`` to this hook, which
 means we don't need to set ``ids`` in all of the ``@pytest.mark.parametrize``
-if we are happy with the way it generates ids. We can still overwrite them by
-explictely by setting a ``str`` id or passing in a callable.
+as long as we are happy with the way it generates ids. We can still overwrite
+them by explictly by setting a ``str`` id or passing in a callable.
 
 # fixtures
 
