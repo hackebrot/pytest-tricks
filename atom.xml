@@ -380,18 +380,18 @@ test_markers.py::test_plugin[cookiecutter-django-michaeljoseph] PASSED
 &lt;/li&gt;
 &lt;li&gt;&lt;p&gt;If you set them explicitely with &lt;code&gt;str&lt;/code&gt; values&lt;/p&gt;
 &lt;p&gt;a. they are set for a &lt;strong&gt;parameter combination&lt;/strong&gt; in case of
- &lt;code&gt;@pytest.mark.parametrize&lt;/code&gt;
- b. or a value returned by &lt;code&gt;@pytest.fixture&lt;/code&gt;&lt;/p&gt;
+ &lt;code&gt;@pytest.mark.parametrize&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;b. or a value returned by &lt;code&gt;@pytest.fixture&lt;/code&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;&lt;p&gt;If you use a callable&lt;/p&gt;
 &lt;p&gt;a. it will be invoked for &lt;strong&gt;each parameter&lt;/strong&gt; in case of
- &lt;code&gt;@pytest.mark.parametrize&lt;/code&gt;
- b. or a value returned by &lt;code&gt;@pytest.fixture&lt;/code&gt;&lt;/p&gt;
+ &lt;code&gt;@pytest.mark.parametrize&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;b. or a value returned by &lt;code&gt;@pytest.fixture&lt;/code&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;&lt;p&gt;If you use the &lt;code&gt;pytest_make_parametrize_id&lt;/code&gt; hook&lt;/p&gt;
 &lt;p&gt;a. it will be invoked for &lt;strong&gt;each parameter&lt;/strong&gt; in case of
- &lt;code&gt;@pytest.mark.parametrize&lt;/code&gt;
- b. or a value returned by &lt;code&gt;@pytest.fixture&lt;/code&gt;&lt;/p&gt;
+ &lt;code&gt;@pytest.mark.parametrize&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;b. or a value returned by &lt;code&gt;@pytest.fixture&lt;/code&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
 &lt;p&gt;So the only thing to keep in mind really is that &lt;code&gt;str&lt;/code&gt; ids for

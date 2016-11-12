@@ -419,18 +419,18 @@ test_markers.py::test_plugin[cookiecutter-django-michaeljoseph] PASSED
 </li>
 <li><p>If you set them explicitely with <code>str</code> values</p>
 <p>a. they are set for a <strong>parameter combination</strong> in case of
- <code>@pytest.mark.parametrize</code>
- b. or a value returned by <code>@pytest.fixture</code></p>
+ <code>@pytest.mark.parametrize</code></p>
+<p>b. or a value returned by <code>@pytest.fixture</code></p>
 </li>
 <li><p>If you use a callable</p>
 <p>a. it will be invoked for <strong>each parameter</strong> in case of
- <code>@pytest.mark.parametrize</code>
- b. or a value returned by <code>@pytest.fixture</code></p>
+ <code>@pytest.mark.parametrize</code></p>
+<p>b. or a value returned by <code>@pytest.fixture</code></p>
 </li>
 <li><p>If you use the <code>pytest_make_parametrize_id</code> hook</p>
 <p>a. it will be invoked for <strong>each parameter</strong> in case of
- <code>@pytest.mark.parametrize</code>
- b. or a value returned by <code>@pytest.fixture</code></p>
+ <code>@pytest.mark.parametrize</code></p>
+<p>b. or a value returned by <code>@pytest.fixture</code></p>
 </li>
 </ol>
 <p>So the only thing to keep in mind really is that <code>str</code> ids for
