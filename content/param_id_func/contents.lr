@@ -1,0 +1,465 @@
+name: ids for fixtures and parametrize
+---
+author: hackebrot
+---
+content:
+
+# parameters for tests
+
+**pytest** comes with a handful of powerful tools to generate parameters for a
+test, so you can run various scenarios against the same test implementation.
+
+- ``params`` on a ``@pytest.fixture``
+- ``parametrize`` marker
+- ``pytest_generate_tests`` hook with ``metafunc.parametrize``
+
+All of the above have their individual strengths and weaknessses. In this post
+I'd like to cover ids for tests and why I think it's a good idea to use them.
+
+Please check out older posts on this blog to find out more about
+parametrization in pytest, if you haven't already.
+
+- [create tests via parametrization](http://hackebrot.github.io/pytest-tricks/create_tests_via_parametrization/)
+- [mark.parametrize with indirect](http://hackebrot.github.io/pytest-tricks/mark_parametrize_with_indirect/)
+
+# test items
+
+To understand how **pytest** generates ids for tests, we first need to know
+what test items are.
+
+For **pytest** a test item is a single test, defined by an underlying test
+function along with its setup and teardown code. On top of that all of the
+fixtures used by the test function make up a test item. Essentially, everything
+we need to run a test. Suffice to say that this is a slightly simplified
+explanation, but that's all we need to know for now.
+
+Here's a code example for clarification:
+
+```python
+@pytest.mark.parametrize(
+    'number, word', [
+        (1, '1'),
+        (3, 'fizz'),
+        (5, 'buzz'),
+        (8, '8'),
+        (10, 'buzz'),
+        (15, 'fizzbuzz'),
+    ]
+)
+def test_fizzbuzz(number, word):
+    assert fizzbuzz(number) == word
+```
+
+There is a single test function in above code example. It calls a function
+called ``fizzbuzz`` with an integer and checks that its return value matches a
+certain string.
+
+Now when we run this, **pytest** creates a number of test items under the hood.
+
+- Item with function: ``test_fizzbuzz``, number: ``1``, word: ``'1'``
+- Item with function: ``test_fizzbuzz``, number: ``3``, word: ``'fizz'``
+- Item with function: ``test_fizzbuzz``, number: ``5``, word: ``'buzz'``
+- Item with function: ``test_fizzbuzz``, number: ``8``, word: ``'8'``
+- Item with function: ``test_fizzbuzz``, number: ``10``, word: ``'buzz'``
+- Item with function: ``test_fizzbuzz``, number: ``15``, word: ``'fizzbuzz'``
+
+This is exactly what we can see in the test result log when running **pytest**
+in normal mode (not quiet or verbose).
+
+# what are ids?
+
+Now **pytest** lets us add *ids* to test items to make them easier to
+distinguish in the log, especially in verbose mode.
+
+## auto-generated ids
+
+If you leave it up to **pytest** to generate ids, you will see that most of
+them are pretty good, but others feel somewhat random. The reason being that
+*non-primitive* types such as ``dict``, ``list``, ``tuple`` or instances of
+``classes`` are non trivial to translate into ids.
+
+The following test is parametrized and the id for a test item will be a
+representation for **each individual parameter** - joined with a ``-``.
+
+```python
+PYTEST_PLUGIN = CookiecutterTemplate(
+    'pytest-plugin',
+    'https://github.com/pytest-dev/cookiecutter-pytest-plugin',
+)
+
+@pytest.mark.parametrize(
+    'a, b',
+    [
+        (1, {'Two Scoops of Django': '1.8'}),
+        (True, 'Into the Brambles'),
+        ('Jason likes cookies', [1, 2, 3]),
+        (PYTEST_PLUGIN, 'plugin_template'),
+    ]
+)
+def test_foobar(a, b):
+    assert True
+```
+
+``$ pytest -v`` produces the following report:
+
+```text
+============================ test session starts =============================
+collecting ... collected 4 items
+
+test_ids.py::test_foobar[1-b0] PASSED
+test_ids.py::test_foobar[True-Into the Brambles] PASSED
+test_ids.py::test_foobar[Jason likes cookies-b2] PASSED
+test_ids.py::test_foobar[a3-plugin_template] PASSED
+
+========================== 4 passed in 0.03 seconds ==========================
+```
+
+As you can see whenever **pytest** encounters one of the *non-primitives* it
+uses the fixture name with a suffix instead.
+
+For instance a tuple of str and list, such as:
+
+``('Jason likes cookies', [1, 2, 3])``
+
+is translated to
+
+``Jason likes cookies-b2``
+
+
+## explicit ids
+
+The good news is that you can define ids yourself rather than leaving it up
+to **pytest** to somehow figure them out.
+
+```python
+PYTEST_PLUGIN = CookiecutterTemplate(
+    'pytest-plugin',
+    'https://github.com/pytest-dev/cookiecutter-pytest-plugin',
+)
+
+
+@pytest.mark.parametrize(
+    'a, b',
+    [
+        (1, {'Two Scoops of Django': '1.8'}),
+        (True, 'Into the Brambles'),
+        ('Jason likes cookies', [1, 2, 3]),
+        (PYTEST_PLUGIN, 'plugin_template'),
+    ], ids=[
+        'int and dict',
+        'bool and str',
+        'str and list',
+        'CookiecutterTemplate and str',
+    ]
+)
+def test_foobar(a, b):
+    assert True
+```
+
+```text
+============================ test session starts =============================
+collecting ... collected 4 items
+
+test_ids.py::test_foobar[int and dict] PASSED
+test_ids.py::test_foobar[bool and str] PASSED
+test_ids.py::test_foobar[str and list] PASSED
+test_ids.py::test_foobar[CookiecutterTemplate and str] PASSED
+
+========================== 4 passed in 0.01 seconds ==========================
+```
+
+Note that passing a list of ``str`` values to the ``ids`` keyword overwrites
+ids **per parameter combination in a marker** and **not for individual
+parameters**. See how there is no ``-`` in the logged ids?
+
+"Hey, you've talked about tests, items, ids, and now markers?!"
+
+I know...it can be confusing. I hope to make this as clear as possible as we
+go on. Hopefully in the end of this post, when reading the TL;DR, you know how
+ids work and how you can use them to make your test suite more maintainable.
+
+
+## markers
+
+As I've mentioned earlier ``str`` id values are applied to a specific parameter
+combination of markers rather than test items or individual parameters. To
+illustrate this, let's have a look at the following code example.
+
+```python
+PYTEST_PLUGIN = CookiecutterTemplate(
+    'pytest-plugin',
+    'https://github.com/pytest-dev/cookiecutter-pytest-plugin',
+)
+
+
+@pytest.mark.parametrize(
+    'a, b',
+    [
+        (1, {'Two Scoops of Django': '1.8'}),
+        (True, 'Into the Brambles'),
+        ('Jason likes cookies', [1, 2, 3]),
+        (PYTEST_PLUGIN, 'plugin_template'),
+    ], ids=[
+        'int and dict',
+        'bool and str',
+        'str and list',
+        'CookiecutterTemplate and str',
+    ]
+)
+@pytest.mark.parametrize(
+    'c',
+    [
+        'hello world',
+        123,
+    ],
+    ids=[
+        'str',
+        'int',
+    ],
+)
+def test_foobar(a, b, c):
+    assert True
+```
+
+Above is the same test from the previous section, but uses an additional test
+parameter ``c``, which is set up with another ``parametrize`` marker.
+
+So here's what you see when you would run this in ``--verbose`` mode:
+
+```text
+============================ test session starts =============================
+collecting ... collected 8 items
+
+test_multiple_markers.py::test_foobar[str-int and dict] PASSED
+test_multiple_markers.py::test_foobar[str-bool and str] PASSED
+test_multiple_markers.py::test_foobar[str-str and list] PASSED
+test_multiple_markers.py::test_foobar[str-CookiecutterTemplate and str] PASSED
+test_multiple_markers.py::test_foobar[int-int and dict] PASSED
+test_multiple_markers.py::test_foobar[int-bool and str] PASSED
+test_multiple_markers.py::test_foobar[int-str and list] PASSED
+test_multiple_markers.py::test_foobar[int-CookiecutterTemplate and str] PASSED
+
+========================== 8 passed in 0.01 seconds ==========================
+```
+
+As you can see here from the printed ids, for instance ``[int-bool and str]``,
+a string value is taken from each marker and joined with ``-`` as it would for
+the automatically generated ids.
+
+
+## ids callables
+
+Instead of providing ``str`` values for test items, you can also pass in a
+function or method, that will be called for **every single parameter** and is
+expected to return a ``str`` id. Unlike ``str`` ids the function is called for
+every parameter!
+
+If your callable returns ``None`` pytest falls back to the autogenerated id for
+that particular parameter.
+
+```python
+PYTEST_PLUGIN = CookiecutterTemplate(
+    'pytest-plugin',
+    'https://github.com/pytest-dev/cookiecutter-pytest-plugin',
+)
+
+
+def id_func(param):
+    if isinstance(param, CookiecutterTemplate):
+        return 'template {.name}'.format(param)
+    return repr(param)
+
+
+@pytest.mark.parametrize(
+    'a, b',
+    [
+        (1, {'Two Scoops of Django': '1.8'}),
+        (True, 'Into the Brambles'),
+        ('Jason likes cookies', [1, 2, 3]),
+        (PYTEST_PLUGIN, 'plugin_template'),
+    ],
+    ids=id_func,
+)
+@pytest.mark.parametrize(
+    'c',
+    [
+        'hello world',
+        123,
+    ],
+    ids=id_func,
+)
+def test_foobar(a, b, c):
+    assert True
+
+
+```
+
+```text
+============================ test session starts =============================
+collecting ... collected 8 items
+
+test_markers.py::test_foobar['hello world'-1-{'Two Scoops of Django': '1.8'}] PASSED
+test_markers.py::test_foobar['hello world'-True-'Into the Brambles'] PASSED
+test_markers.py::test_foobar['hello world'-'Jason likes cookies'-[1, 2, 3]] PASSED
+test_markers.py::test_foobar['hello world'-template pytest-plugin-'plugin_template'] PASSED
+test_markers.py::test_foobar[123-1-{'Two Scoops of Django': '1.8'}] PASSED
+test_markers.py::test_foobar[123-True-'Into the Brambles'] PASSED
+test_markers.py::test_foobar[123-'Jason likes cookies'-[1, 2, 3]] PASSED
+test_markers.py::test_foobar[123-template pytest-plugin-'plugin_template'] PASSED
+
+========================== 8 passed in 0.02 seconds ==========================
+```
+
+## id hook
+
+A new hook called ``pytest_make_parametrize_id`` was added in pytest 3.0 that
+makes it easy to centralize id generation. One of the reason you might want to
+do this, is when you use instances of your custom classes for parametrized
+tests. I personally don't think it's a good idea to change the classes, by
+modifying the ``__repr__`` or ``__str__`` magic methods, just so that you get
+this extra convenience in your tests.
+
+Let's have an example for how this hook works:
+
+```python
+PYTEST_PLUGIN = CookiecutterTemplate(
+    'pytest-plugin',
+    'https://github.com/pytest-dev/cookiecutter-pytest-plugin',
+)
+
+
+@pytest.mark.parametrize(
+    'a, b',
+    [
+        (1, {'Two Scoops of Django': '1.8'}),
+        (True, 'Into the Brambles'),
+        ('Jason likes cookies', [1, 2, 3]),
+        (PYTEST_PLUGIN, 'plugin_template'),
+    ],
+)
+@pytest.mark.parametrize(
+    'c',
+    [
+        'hello world',
+        123,
+    ],
+)
+def test_foobar(a, b, c):
+    assert True
+```
+
+The test and the markers are identical to the example from the previous
+section, except for the ``ids`` keyword argument in the markers.
+
+Now what we do instead is implementing the hook in a **conftest.py** file:
+
+```python
+# -*- coding: utf-8 -*-
+
+from templates import CookiecutterTemplate
+
+
+def pytest_make_parametrize_id(config, val):
+    if isinstance(val, CookiecutterTemplate):
+        return 'template {.name}'.format(val)
+    return repr(val)
+```
+
+``val`` is the value that will be passed into the test a particular parameter
+and ``config`` is the test run config, so you could check for command-line
+flags etc. if you want to.
+
+We effectively moved the implementation of our ``id_func`` to this hook, which
+means we don't need to set ``ids`` in all of the ``@pytest.mark.parametrize``
+if we are happy with the way it generates ids. We can still overwrite them by
+explictely by setting a ``str`` id or passing in a callable.
+
+# fixtures
+
+Ids for fixtures are in fact easier to understand as for ``parametrize``
+markers, as they don't have any edge cases that you need to be aware of.
+Fixtures always return a single value, which means regardless of whether you
+use ``str`` ids, an id callable or the ``pytest_make_parametrize_id`` it will
+always be applied to this very parameter that the fixture returns.
+
+```python
+@pytest.fixture(params=[
+    CookiecutterTemplate(
+        name='cookiecutter-pytest-plugin',
+        url='https://github.com/pytest-dev/cookiecutter-pytest-plugin',
+    ),
+    CookiecutterTemplate(
+        name='cookiecutter-django',
+        url='https://github.com/pydanny/cookiecutter-django',
+    ),
+], ids=[
+    'cookiecutter-pytest-plugin',
+    'cookiecutter-django'
+])
+def plugin(request):
+    return request.param
+
+
+@pytest.fixture(params=[
+    'pydanny',
+    'audreyr',
+    'michaeljoseph',
+])
+def github_user(request):
+    return request.param
+
+
+def test_plugin(plugin, github_user):
+    assert True
+```
+
+```text
+============================ test session starts =============================
+collecting ... collected 6 items
+
+test_markers.py::test_plugin[cookiecutter-pytest-plugin-pydanny] PASSED
+test_markers.py::test_plugin[cookiecutter-pytest-plugin-audreyr] PASSED
+test_markers.py::test_plugin[cookiecutter-pytest-plugin-michaeljoseph] PASSED
+test_markers.py::test_plugin[cookiecutter-django-pydanny] PASSED
+test_markers.py::test_plugin[cookiecutter-django-audreyr] PASSED
+test_markers.py::test_plugin[cookiecutter-django-michaeljoseph] PASSED
+
+========================== 6 passed in 0.04 seconds ==========================
+```
+
+# Conclusion
+
+1. If you don't set ids, pytest will generate them for you
+2. If you set them explicitely with ``str`` values
+    a. they are set for a **parameter combination** in case of
+    ``@pytest.mark.parametrize``
+    b. or a value returned by ``@pytest.fixture``
+3. If you use a callable
+    a. it will be invoked for **each parameter** in case of
+    ``@pytest.mark.parametrize``
+    b. or a value returned by ``@pytest.fixture``
+4. If you use the ``pytest_make_parametrize_id`` hook
+    a. it will be invoked for **each parameter** in case of
+    ``@pytest.mark.parametrize``
+    b. or a value returned by ``@pytest.fixture``
+
+So the only thing to keep in mind really is that ``str`` ids for
+``pytest.mark.parametrize``.
+
+
+Hope this helps!
+
+---
+date: 2016-11-12
+---
+docs: http://doc.pytest.org/en/latest/parametrize.html#_pytest.python.Metafunc.parametrize
+---
+tags:
+
+fixture
+parametrize
+pytest_make_parametrize_id
+ids
+---
+tldr: Set ids explicitely with a ``str`` or generate them with a callable or
+the ``pytest_make_parametrize_id`` hook.
