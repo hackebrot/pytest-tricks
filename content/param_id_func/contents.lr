@@ -28,10 +28,9 @@ To understand how **pytest** generates ids for tests, we first need to know
 what test items are.
 
 For **pytest** a test item is a single test, defined by an underlying test
-function along with its setup and teardown code. On top of that all of the
-fixtures used by the test function make up a test item. Essentially, everything
-we need to run a test. Suffice to say that this is a slightly simplified
-explanation, but that's all we need to know for now.
+function along with the setup and teardown code for the fixtures it uses.
+Essentially, everything we need to run a test. Suffice to say that this is a
+slightly simplified explanation, but that's all we need to know for now.
 
 Here's a code example for clarification:
 
