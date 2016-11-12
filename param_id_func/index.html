@@ -320,7 +320,7 @@ parametrized tests. I personally don't think it's a good idea to change the
 classes, by modifying the <code>__repr__</code> or <code>__str__</code> magic methods, just so
 that you get this extra convenience in your tests. Instead I would encourage
 you to try out this hook.</p>
-<p>Let's have an example for how this hook works:</p>
+<p>Let's have a look at how this hook works:</p>
 <div class="highlight"><pre><span></span><span class="n">PYTEST_PLUGIN</span> <span class="o">=</span> <span class="n">CookiecutterTemplate</span><span class="p">(</span>
     <span class="s1">&#39;pytest-plugin&#39;</span><span class="p">,</span>
     <span class="s1">&#39;https://github.com/pytest-dev/cookiecutter-pytest-plugin&#39;</span><span class="p">,</span>

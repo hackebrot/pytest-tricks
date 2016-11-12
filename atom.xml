@@ -281,7 +281,7 @@ parametrized tests. I personally don't think it's a good idea to change the
 classes, by modifying the &lt;code&gt;__repr__&lt;/code&gt; or &lt;code&gt;__str__&lt;/code&gt; magic methods, just so
 that you get this extra convenience in your tests. Instead I would encourage
 you to try out this hook.&lt;/p&gt;
-&lt;p&gt;Let's have an example for how this hook works:&lt;/p&gt;
+&lt;p&gt;Let's have a look at how this hook works:&lt;/p&gt;
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;PYTEST_PLUGIN&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;CookiecutterTemplate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
     &lt;span class=&quot;s1&quot;&gt;&amp;#39;pytest-plugin&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
     &lt;span class=&quot;s1&quot;&gt;&amp;#39;https://github.com/pytest-dev/cookiecutter-pytest-plugin&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
