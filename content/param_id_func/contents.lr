@@ -82,6 +82,11 @@ The following test is parametrized and the id for a test item will be a
 representation for **each individual parameter** - joined with a ``-``.
 
 ```python
+class CookiecutterTemplate:
+    def __init__(self, name, url):
+        self.name = name
+        self.url = url
+
 PYTEST_PLUGIN = CookiecutterTemplate(
     'pytest-plugin',
     'https://github.com/pytest-dev/cookiecutter-pytest-plugin',
