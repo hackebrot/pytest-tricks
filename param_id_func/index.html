@@ -42,8 +42,8 @@
                     <h3 class="panel-title"><strong>TL;DR</strong></h3>
                 </div>
                 <div class="panel-body">
-                    <p>Set ids explicitely with a <code>str</code> or generate them with a callable or
-the <code>pytest_make_parametrize_id</code> hook.</p>
+                    <p>set ids by using a <code>str</code> value or generate them with a callable or the
+<code>pytest_make_parametrize_id</code> hook.</p>
 
                 </div>
             </div>
@@ -415,19 +415,23 @@ test_markers.py::test_plugin[cookiecutter-django-michaeljoseph] PASSED
 </pre></div>
 <h1>Conclusion</h1>
 <ol>
-<li>If you don't set ids, pytest will generate them for you</li>
-<li>If you set them explicitely with <code>str</code> values
- a. they are set for a <strong>parameter combination</strong> in case of
+<li><p>If you don't set ids, pytest will generate them for you</p>
+</li>
+<li><p>If you set them explicitely with <code>str</code> values</p>
+<p>a. they are set for a <strong>parameter combination</strong> in case of
  <code>@pytest.mark.parametrize</code>
- b. or a value returned by <code>@pytest.fixture</code></li>
-<li>If you use a callable
- a. it will be invoked for <strong>each parameter</strong> in case of
+ b. or a value returned by <code>@pytest.fixture</code></p>
+</li>
+<li><p>If you use a callable</p>
+<p>a. it will be invoked for <strong>each parameter</strong> in case of
  <code>@pytest.mark.parametrize</code>
- b. or a value returned by <code>@pytest.fixture</code></li>
-<li>If you use the <code>pytest_make_parametrize_id</code> hook
- a. it will be invoked for <strong>each parameter</strong> in case of
+ b. or a value returned by <code>@pytest.fixture</code></p>
+</li>
+<li><p>If you use the <code>pytest_make_parametrize_id</code> hook</p>
+<p>a. it will be invoked for <strong>each parameter</strong> in case of
  <code>@pytest.mark.parametrize</code>
- b. or a value returned by <code>@pytest.fixture</code></li>
+ b. or a value returned by <code>@pytest.fixture</code></p>
+</li>
 </ol>
 <p>So the only thing to keep in mind really is that <code>str</code> ids for
 <code>pytest.mark.parametrize</code>.</p>
