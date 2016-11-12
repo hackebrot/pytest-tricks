@@ -435,15 +435,20 @@ test_markers.py::test_plugin[cookiecutter-django-michaeljoseph] PASSED
 # Conclusion
 
 1. If you don't set ids, pytest will generate them for you
+
 2. If you set them explicitely with ``str`` values
+
     a. they are set for a **parameter combination** in case of
     ``@pytest.mark.parametrize``
     b. or a value returned by ``@pytest.fixture``
 3. If you use a callable
+
     a. it will be invoked for **each parameter** in case of
     ``@pytest.mark.parametrize``
     b. or a value returned by ``@pytest.fixture``
+
 4. If you use the ``pytest_make_parametrize_id`` hook
+
     a. it will be invoked for **each parameter** in case of
     ``@pytest.mark.parametrize``
     b. or a value returned by ``@pytest.fixture``
@@ -466,5 +471,5 @@ parametrize
 pytest_make_parametrize_id
 ids
 ---
-tldr: Set ids explicitely with a ``str`` or generate them with a callable or
-the ``pytest_make_parametrize_id`` hook.
+tldr: set ids by using a ``str`` value or generate them with a callable or the
+``pytest_make_parametrize_id`` hook.
