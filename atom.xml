@@ -113,7 +113,7 @@ test_ids.py::test_foobar[a3-plugin_template] PASSED
 ========================== 4 passed in 0.03 seconds ==========================
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;As you can see whenever &lt;strong&gt;pytest&lt;/strong&gt; encounters one of the &lt;em&gt;non-primitives&lt;/em&gt; it
-uses the fixture name with a suffix instead.&lt;/p&gt;
+uses the parametrized argument name with a suffix instead.&lt;/p&gt;
 &lt;p&gt;For instance a tuple of str and list, such as:&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;('Jason likes cookies', [1, 2, 3])&lt;/code&gt;&lt;/p&gt;
 &lt;p&gt;is translated to&lt;/p&gt;
@@ -378,7 +378,7 @@ test_markers.py::test_plugin[cookiecutter-django-michaeljoseph] PASSED
 &lt;ol&gt;
 &lt;li&gt;&lt;p&gt;If you don't set ids, pytest will generate them for you&lt;/p&gt;
 &lt;/li&gt;
-&lt;li&gt;&lt;p&gt;If you set them explicitely with &lt;code&gt;str&lt;/code&gt; values&lt;/p&gt;
+&lt;li&gt;&lt;p&gt;If you set them explicitly with &lt;code&gt;str&lt;/code&gt; values&lt;/p&gt;
 &lt;p&gt;a. they are set for a &lt;strong&gt;parameter combination&lt;/strong&gt; in case of
  &lt;code&gt;@pytest.mark.parametrize&lt;/code&gt;&lt;/p&gt;
 &lt;p&gt;b. or a value returned by &lt;code&gt;@pytest.fixture&lt;/code&gt;&lt;/p&gt;

@@ -152,7 +152,7 @@ test_ids.py::test_foobar[a3-plugin_template] PASSED
 ========================== 4 passed in 0.03 seconds ==========================
 </pre></div>
 <p>As you can see whenever <strong>pytest</strong> encounters one of the <em>non-primitives</em> it
-uses the fixture name with a suffix instead.</p>
+uses the parametrized argument name with a suffix instead.</p>
 <p>For instance a tuple of str and list, such as:</p>
 <p><code>('Jason likes cookies', [1, 2, 3])</code></p>
 <p>is translated to</p>
@@ -417,7 +417,7 @@ test_markers.py::test_plugin[cookiecutter-django-michaeljoseph] PASSED
 <ol>
 <li><p>If you don't set ids, pytest will generate them for you</p>
 </li>
-<li><p>If you set them explicitely with <code>str</code> values</p>
+<li><p>If you set them explicitly with <code>str</code> values</p>
 <p>a. they are set for a <strong>parameter combination</strong> in case of
  <code>@pytest.mark.parametrize</code></p>
 <p>b. or a value returned by <code>@pytest.fixture</code></p>
