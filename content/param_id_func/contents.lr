@@ -119,7 +119,7 @@ test_ids.py::test_foobar[a3-plugin_template] PASSED
 ```
 
 As you can see whenever **pytest** encounters one of the *non-primitives* it
-uses the fixture name with a suffix instead.
+uses the parametrized argument name with a suffix instead.
 
 For instance a tuple of str and list, such as:
 
@@ -436,7 +436,7 @@ test_markers.py::test_plugin[cookiecutter-django-michaeljoseph] PASSED
 
 1. If you don't set ids, pytest will generate them for you
 
-2. If you set them explicitely with ``str`` values
+2. If you set them explicitly with ``str`` values
 
     a. they are set for a **parameter combination** in case of
     ``@pytest.mark.parametrize``
