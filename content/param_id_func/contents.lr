@@ -401,7 +401,7 @@ always be applied to this very parameter that the fixture returns.
     'cookiecutter-pytest-plugin',
     'cookiecutter-django'
 ])
-def plugin(request):
+def template(request):
     return request.param
 
 
@@ -414,7 +414,7 @@ def github_user(request):
     return request.param
 
 
-def test_plugin(plugin, github_user):
+def test_template(template, github_user):
     assert True
 ```
 
@@ -422,12 +422,12 @@ def test_plugin(plugin, github_user):
 ============================ test session starts =============================
 collecting ... collected 6 items
 
-test_markers.py::test_plugin[cookiecutter-pytest-plugin-pydanny] PASSED
-test_markers.py::test_plugin[cookiecutter-pytest-plugin-audreyr] PASSED
-test_markers.py::test_plugin[cookiecutter-pytest-plugin-michaeljoseph] PASSED
-test_markers.py::test_plugin[cookiecutter-django-pydanny] PASSED
-test_markers.py::test_plugin[cookiecutter-django-audreyr] PASSED
-test_markers.py::test_plugin[cookiecutter-django-michaeljoseph] PASSED
+test_markers.py::test_template[cookiecutter-pytest-plugin-pydanny] PASSED
+test_markers.py::test_template[cookiecutter-pytest-plugin-audreyr] PASSED
+test_markers.py::test_template[cookiecutter-pytest-plugin-michaeljoseph] PASSED
+test_markers.py::test_template[cookiecutter-django-pydanny] PASSED
+test_markers.py::test_template[cookiecutter-django-audreyr] PASSED
+test_markers.py::test_template[cookiecutter-django-michaeljoseph] PASSED
 
 ========================== 6 passed in 0.04 seconds ==========================
 ```
