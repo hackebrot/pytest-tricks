@@ -346,7 +346,7 @@ always be applied to this very parameter that the fixture returns.&lt;/p&gt;
     &lt;span class=&quot;s1&quot;&gt;&amp;#39;cookiecutter-pytest-plugin&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
     &lt;span class=&quot;s1&quot;&gt;&amp;#39;cookiecutter-django&amp;#39;&lt;/span&gt;
 &lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;plugin&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;request&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;template&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;request&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
     &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;request&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;param&lt;/span&gt;
 
 
@@ -359,18 +359,18 @@ always be applied to this very parameter that the fixture returns.&lt;/p&gt;
     &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;request&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;param&lt;/span&gt;
 
 
-&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;test_plugin&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;plugin&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;github_user&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;test_template&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;template&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;github_user&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
     &lt;span class=&quot;k&quot;&gt;assert&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;True&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;============================ test session starts =============================
 collecting ... collected 6 items
 
-test_markers.py::test_plugin[cookiecutter-pytest-plugin-pydanny] PASSED
-test_markers.py::test_plugin[cookiecutter-pytest-plugin-audreyr] PASSED
-test_markers.py::test_plugin[cookiecutter-pytest-plugin-michaeljoseph] PASSED
-test_markers.py::test_plugin[cookiecutter-django-pydanny] PASSED
-test_markers.py::test_plugin[cookiecutter-django-audreyr] PASSED
-test_markers.py::test_plugin[cookiecutter-django-michaeljoseph] PASSED
+test_markers.py::test_template[cookiecutter-pytest-plugin-pydanny] PASSED
+test_markers.py::test_template[cookiecutter-pytest-plugin-audreyr] PASSED
+test_markers.py::test_template[cookiecutter-pytest-plugin-michaeljoseph] PASSED
+test_markers.py::test_template[cookiecutter-django-pydanny] PASSED
+test_markers.py::test_template[cookiecutter-django-audreyr] PASSED
+test_markers.py::test_template[cookiecutter-django-michaeljoseph] PASSED
 
 ========================== 6 passed in 0.04 seconds ==========================
 &lt;/pre&gt;&lt;/div&gt;

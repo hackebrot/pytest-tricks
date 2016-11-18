@@ -385,7 +385,7 @@ always be applied to this very parameter that the fixture returns.</p>
     <span class="s1">&#39;cookiecutter-pytest-plugin&#39;</span><span class="p">,</span>
     <span class="s1">&#39;cookiecutter-django&#39;</span>
 <span class="p">])</span>
-<span class="k">def</span> <span class="nf">plugin</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">template</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">request</span><span class="o">.</span><span class="n">param</span>
 
 
@@ -398,18 +398,18 @@ always be applied to this very parameter that the fixture returns.</p>
     <span class="k">return</span> <span class="n">request</span><span class="o">.</span><span class="n">param</span>
 
 
-<span class="k">def</span> <span class="nf">test_plugin</span><span class="p">(</span><span class="n">plugin</span><span class="p">,</span> <span class="n">github_user</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">test_template</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">github_user</span><span class="p">):</span>
     <span class="k">assert</span> <span class="bp">True</span>
 </pre></div>
 <div class="highlight"><pre><span></span>============================ test session starts =============================
 collecting ... collected 6 items
 
-test_markers.py::test_plugin[cookiecutter-pytest-plugin-pydanny] PASSED
-test_markers.py::test_plugin[cookiecutter-pytest-plugin-audreyr] PASSED
-test_markers.py::test_plugin[cookiecutter-pytest-plugin-michaeljoseph] PASSED
-test_markers.py::test_plugin[cookiecutter-django-pydanny] PASSED
-test_markers.py::test_plugin[cookiecutter-django-audreyr] PASSED
-test_markers.py::test_plugin[cookiecutter-django-michaeljoseph] PASSED
+test_markers.py::test_template[cookiecutter-pytest-plugin-pydanny] PASSED
+test_markers.py::test_template[cookiecutter-pytest-plugin-audreyr] PASSED
+test_markers.py::test_template[cookiecutter-pytest-plugin-michaeljoseph] PASSED
+test_markers.py::test_template[cookiecutter-django-pydanny] PASSED
+test_markers.py::test_template[cookiecutter-django-audreyr] PASSED
+test_markers.py::test_template[cookiecutter-django-michaeljoseph] PASSED
 
 ========================== 6 passed in 0.04 seconds ==========================
 </pre></div>
