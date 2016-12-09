@@ -107,3 +107,6 @@ A bit upgraded version of the test accepts two fixtures (mytest.py):
 def test_foo(info, length):
  assert len(info()) == length()
 ```
+---
+date: 2016-11-12
+
