@@ -3,10 +3,10 @@ name = pytest-tricks
 url = http://hackebrot.github.io/pytest-tricks/
 
 [packages]
-lektor-webpack-support = 0.1
 lektor-markdown-highlighter = 0.1
 lektor-disqus-comments = 0.2
-lektor-atom = 0.1
+lektor-atom = 0.2
+lektor-webpack-support = 0.3
 
 [servers.ghpages]
 target = ghpages+https://hackebrot/pytest-tricks
