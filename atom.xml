@@ -9,7 +9,7 @@
     <name>Raphael Pierzina and pytest-dev team</name>
   </author>
   <subtitle type="text">Tips and Tricks for the Python Testing Tool</subtitle>
-  <generator uri="https://github.com/ajdavis/lektor-atom" version="0.1">Lektor Atom Plugin</generator>
+  <generator uri="https://github.com/ajdavis/lektor-atom" version="0.2">Lektor Atom Plugin</generator>
   <entry xml:base="http://hackebrot.github.io/pytest-tricks/param_id_func/">
     <title type="text">ids for fixtures and parametrize</title>
     <id>urn:uuid:1bd554e3-af75-3403-991f-0beeb0c76672</id>
