@@ -1,4 +1,6 @@
 {
+  "name": "pytest-tricks",
+  "version": "0.1.0",
   "private": true,
   "devDependencies": {
     "babel-core": "^6.5.2",
