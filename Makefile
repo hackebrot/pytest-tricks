@@ -7,6 +7,13 @@ clean-pyc: ## Remove Python file artifacts
 	@find . -type f -name '*.py[co]' -exec rm -f {} +
 	@find . -name '*~' -exec rm -f {} +
 
+
+.PHONY: clean-lektor
+clean-lektor: ## Remove lektor build artifacts
+	@echo "+ $@"
+	@lektor clean
+
+
 .PHONY: clean
 clean: clean-pyc ## Remove all file artifacts
 
