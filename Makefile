@@ -1,15 +1,21 @@
-.PHONY: clean-py clean
+.DEFAULT_GOAL := help
 
+.PHONY: clean-pyc
+clean-pyc: ## Remove Python file artifacts
+	@echo "+ $@"
+	@find . -type d -name '__pycache__' -exec rm -rf {} +
+	@find . -type f -name '*.py[co]' -exec rm -f {} +
+	@find . -name '*~' -exec rm -f {} +
+
+.PHONY: clean
+clean: clean-pyc ## Remove all file artifacts
+
+.PHONY: server
+server: ## Run local lektor server
+	@echo "+ $@"
+	@lektor server -f webpack
+
+
+.PHONY: help
 help:
-	@echo "clean-py - remove Python file artifacts"
-	@echo "clean - remove all file artifacts"
-	@echo "server - run a local lektor server"
-
-clean: clean-py
-
-clean-py:
-	find . -type f -name "*.py[co]" -delete
-	find . -type d -name "__pycache__" -delete
-
-server:
-	lektor server -f webpack
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-16s\033[0m %s\n", $$1, $$2}'
