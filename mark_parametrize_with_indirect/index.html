@@ -1,7 +1,7 @@
 <!doctype html>
 <meta charset="utf-8">
 <link rel="stylesheet" href="../static/gen/styles.css?h=3e7c0aad">
-<script type=text/javascript src="../static/gen/app.js?h=d3372432" charset="utf-8"></script>
+<script type=text/javascript src="../static/gen/app.js?h=c61945ea" charset="utf-8"></script>
 <link rel="stylesheet" href="../static/pygments.css">
 <title>mark.parametrize with indirect (2016) — pytest-tricks</title>
 <body>
@@ -87,7 +87,7 @@ Bar</em> offers a few vegetarian dishes.</p>
 
 
 <span class="k">class</span> <span class="nc">Restaurant</span><span class="p">:</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">menu</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">menu</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">menu</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span>
 
@@ -97,14 +97,14 @@ Bar</em> offers a few vegetarian dishes.</p>
 
 
 <span class="k">class</span> <span class="nc">Sushi</span><span class="p">:</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">ingredients</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">ingredients</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">ingredients</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ingredients</span> <span class="o">=</span> <span class="n">ingredients</span>
 
-    <span class="k">def</span> <span class="nf">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ingredient</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ingredient</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">ingredient</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ingredients</span>
 
     <span class="nd">@property</span>

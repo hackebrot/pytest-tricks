@@ -1,7 +1,7 @@
 <!doctype html>
 <meta charset="utf-8">
 <link rel="stylesheet" href="../static/gen/styles.css?h=3e7c0aad">
-<script type=text/javascript src="../static/gen/app.js?h=d3372432" charset="utf-8"></script>
+<script type=text/javascript src="../static/gen/app.js?h=c61945ea" charset="utf-8"></script>
 <link rel="stylesheet" href="../static/pygments.css">
 <title>Create Tests via Parametrization (2016) — pytest-tricks</title>
 <body>
@@ -111,7 +111,7 @@ Good news! Pytest lets you combine both methods to get the most out of both worl
 
 
 <span class="k">class</span> <span class="nc">Package</span><span class="p">:</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">license</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">license</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">license</span> <span class="o">=</span> <span class="n">license</span>
 
@@ -121,7 +121,7 @@ Good news! Pytest lets you combine both methods to get the most out of both worl
 
 
 <span class="k">class</span> <span class="nc">Person</span><span class="p">:</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">gender</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">gender</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gender</span> <span class="o">=</span> <span class="n">gender</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_skills</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;eating&#39;</span><span class="p">,</span> <span class="s1">&#39;sleeping&#39;</span><span class="p">]</span>
@@ -138,13 +138,13 @@ Good news! Pytest lets you combine both methods to get the most out of both worl
 
 
 <span class="k">class</span> <span class="nc">Woman</span><span class="p">(</span><span class="n">Person</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;female&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;female&#39;</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">Man</span><span class="p">(</span><span class="n">Person</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;male&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;male&#39;</span><span class="p">)</span>
 </pre></div>
 <h2>Tests in a Separate Module</h2>
 <p>With only two few lines of pytest code, we can create loads of different scenarios that we would like to test.
