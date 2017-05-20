@@ -2,6 +2,6 @@ var $ = require('jquery');
 window.$ = $;
 window.jQuery = $;
 require("bootstrap");
-require("!style!css!bootswatch/yeti/bootstrap.min.css");
+require("!style-loader!css-loader!bootswatch/yeti/bootstrap.min.css");
 
 

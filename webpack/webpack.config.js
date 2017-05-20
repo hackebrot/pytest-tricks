@@ -13,27 +13,19 @@ module.exports = {
   },
   devtool: '#cheap-module-source-map',
   resolve: {
-    modulesDirectories: ['node_modules'],
-    extensions: ['', '.js', '.css']
+    modules: ['node_modules'],
+    extensions: ['.js']
   },
   module: {
     loaders: [
-      { test: /\.js$/, exclude: /node_modules/,
-        loader: 'babel-loader' },
-      { test: /\.scss$/,
-        loader: ExtractTextPlugin.extract(
-          'style-loader', 'css-loader!sass-loader') },
-      { test: /\.css$/,
-        loader: ExtractTextPlugin.extract(
-          'style-loader', 'css-loader') },
-      { test: /\.(woff2?|ttf|eot|svg|png|jpe?g|gif)$/,
-        loader: 'file' }
+      { test: /\.js$/, exclude: /node_modules/, loader: 'babel-loader' },
+      { test: /\.scss$/, loader: ExtractTextPlugin.extract( { fallback: 'style-loader', use: 'css-loader!sass-loader' } ) },
+      { test: /\.css$/, loader: ExtractTextPlugin.extract( { fallback: 'style-loader', use: 'css-loader' } ) },
+      { test: /\.(woff2?|ttf|eot|svg|png|jpe?g|gif)$/, loader: 'file-loader' }
     ]
   },
   plugins: [
-    new ExtractTextPlugin('styles.css', {
-      allChunks: true
-    }),
+    new ExtractTextPlugin({filename: 'styles.css',  allChunks: true }),
     new webpack.optimize.UglifyJsPlugin()
   ]
 };
