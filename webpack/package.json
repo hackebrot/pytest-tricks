@@ -1,20 +1,28 @@
 {
   "name": "pytest-tricks",
   "version": "0.1.0",
+  "description": "",
   "private": true,
+  "main": "webpack.config.js",
+  "dependencies": {},
   "devDependencies": {
-    "babel-core": "^6.5.2",
-    "babel-loader": "^6.2.3",
-    "bootstrap": "^3.3.6",
-    "bootswatch": "^3.3.6",
-    "css-loader": "^0.23.1",
-    "extract-text-webpack-plugin": "^1.0.1",
-    "file-loader": "^0.8.5",
-    "jquery": "^2.2.0",
-    "node-sass": "^3.4.2",
-    "sass-loader": "^3.1.2",
-    "style-loader": "^0.13.0",
-    "url-loader": "^0.5.7",
-    "webpack": "^1.12.13"
-  }
+    "babel-core": "^6.24.1",
+    "babel-loader": "^7.0.0",
+    "bootstrap": "^3.3.7",
+    "bootswatch": "^3.3.7",
+    "css-loader": "^0.28.1",
+    "extract-text-webpack-plugin": "^2.1.0",
+    "file-loader": "^0.11.1",
+    "jquery": "^3.2.1",
+    "node-sass": "^4.5.3",
+    "sass-loader": "^6.0.5",
+    "style-loader": "^0.17.0",
+    "url-loader": "^0.5.8",
+    "webpack": "^2.5.1"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Raphael Pierzina",
+  "license": "MIT"
 }
