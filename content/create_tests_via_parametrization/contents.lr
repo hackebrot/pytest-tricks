@@ -57,7 +57,7 @@ def test_is_healthy(fruit):
 
 # Example Implementation
 
-*Please note that the examples are written in Python3*
+*Please note that the examples are written in Python 3*
 
 Sometimes you may find yourself struggling to chose which is the best way to parametrize your tests.
 At the end of the day it really depends on what you want to test. But...
