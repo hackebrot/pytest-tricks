@@ -410,7 +410,7 @@ test_markers.py::test_template[cookiecutter-django-michaeljoseph] PASSED
     <content type="html">&lt;h1&gt;mark.parametrize&lt;/h1&gt;
 &lt;p&gt;In &lt;a href=&quot;http://hackebrot.github.io/pytest-tricks/create_tests_via_parametrization/&quot;&gt;Create Tests via Parametrization&lt;/a&gt; we've learned how to
 use &lt;code&gt;@pytest.mark.parametrize&lt;/code&gt; to generate a number of test cases for
-one test.&lt;/p&gt;
+one test implementation.&lt;/p&gt;
 &lt;h1&gt;indirect&lt;/h1&gt;
 &lt;p&gt;You can pass a keyword argument named &lt;code&gt;indirect&lt;/code&gt; to &lt;code&gt;parametrize&lt;/code&gt; to change
 how its parameters are being passed to the underlying test function. It accepts
