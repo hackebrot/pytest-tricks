@@ -17,6 +17,19 @@ clean-lektor: ## Remove lektor build artifacts
 .PHONY: clean
 clean: clean-pyc ## Remove all file artifacts
 
+
+.PHONY: install-webpack
+install-webpack: ## Install webpack dependencies
+	@echo "+ $@"
+	@cd webpack && npm install --save-dev webpack babel-core node-sass babel-loader sass-loader css-loader url-loader style-loader file-loader extract-text-webpack-plugin bootstrap bootswatch jquery
+
+
+.PHONY: build
+build: ## Build lektpr site
+	@echo "+ $@"
+	@lektor build -f webpack
+
+
 .PHONY: server
 server: ## Run local lektor server
 	@echo "+ $@"
