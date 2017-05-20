@@ -8,7 +8,7 @@ content:
 
 In [Create Tests via Parametrization][parametrize] we've learned how to
 use ``@pytest.mark.parametrize`` to generate a number of test cases for
-one test.
+one test implementation.
 
 [parametrize]: http://hackebrot.github.io/pytest-tricks/create_tests_via_parametrization/
 
