@@ -9,7 +9,7 @@ script: "lektor build"
 deploy:
   provider: script
   skip_cleanup: true
-  script: "lektor deploy ghpages"
+  script: "lektor deploy ghpages-https"
   on:
     branch: master
 

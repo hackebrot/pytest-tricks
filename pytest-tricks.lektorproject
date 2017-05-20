@@ -8,5 +8,5 @@ lektor-disqus-comments = 0.2
 lektor-atom = 0.2
 lektor-webpack-support = 0.3
 
-[servers.ghpages]
-target = ghpages+https://hackebrot/pytest-tricks
+[servers.ghpages-https]
+target = ghpages+https://hackebrot/pytest-tricks.git
