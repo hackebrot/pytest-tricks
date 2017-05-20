@@ -63,4 +63,3 @@ target/
 
 # Add webpack and lektor files
 webpack/node_modules
-assets/static/gen
