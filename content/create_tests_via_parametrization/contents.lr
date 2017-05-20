@@ -5,6 +5,7 @@ author: hackebrot
 content:
 
 # Use Case
+
 Imagine you want to write a test for a particular function, but for multiple input values.
 Writing a for-loop is a bad idea as the test will fail as soon as it hits the first ``AssertionError``.
 Subsequent input values will not be tested and you have no idea which part of your code is actually broken.
