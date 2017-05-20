@@ -888,7 +888,7 @@ you can pass it right to the test via the &lt;code&gt;return&lt;/code&gt; statem
     &lt;span class=&quot;k&quot;&gt;assert&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;is_healthy&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;fruit&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;h1&gt;Example Implementation&lt;/h1&gt;
-&lt;p&gt;&lt;em&gt;Please note that the examples are written in Python3&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Please note that the examples are written in Python 3&lt;/em&gt;&lt;/p&gt;
 &lt;p&gt;Sometimes you may find yourself struggling to chose which is the best way to parametrize your tests.
 At the end of the day it really depends on what you want to test. But...
 Good news! Pytest lets you combine both methods to get the most out of both worlds.&lt;/p&gt;
