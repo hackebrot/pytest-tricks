@@ -1,6 +1,8 @@
-name: Passing fixtures to tests in pytest
+name: Load pytest plugins dynamically
 ---
-author: amarao
+author: George Shuklin
+---
+github_user: amarao
 ---
 content:
 
@@ -8,9 +10,9 @@ There is a way to pass fixtures from python code to tests via plugins argument o
 
 # Creating fixture
 
-To create fixture we can use decorator @pytest.fixture:
+To create fixture we can use decorator ``@pytest.fixture``:
 
-```
+```python
 @pytest.fixture
 def info(request):
     return "Information!"
@@ -18,49 +20,57 @@ def info(request):
 
 # Passing plugin to pytest
 
-To pass something to pytest-executed tests we can use plugin mechanism of pytest. (For not let says that ‘myplugin’ contains actual plugin, I’ll show later how to create it).
+To pass something to pytest-executed tests we can use plugin mechanism of pytest. (For not let says that ``myplugin`` contains actual plugin, I’ll show later how to create it).
 
-```
+```python
 pytest.main([path_to_test, '-v'], plugins=[myplugin])
 ```
 
-(Please not that ‘plugins’ takes a list of plugins, not plugin itself)
+(Please not that ``plugins`` takes a list of plugins, not plugin itself)
 
 # Creating plugin
 
 There are two ways to create plugin:
 
 - Use stand-alone module
-- Create class or other ‘dotted’ object (object with members accessible by dot: plugin.something).
+- Create class or other *dotted* object (object with members accessible by dot: plugin.something).
 
 ## Module way
 
 Use a separate file to contains plugin code:
 
 myplugin.py:
-```
+
+```python
 import pytest
 
 @pytest.fixture
 def info(request):
     return "Information"
 ```
+
 actual call of pytest:
-```
+
+```python
 import myplugin
+
 pytest.main(['mytest.py', '-v'], plugins=[myplugin])
 ```
+
 Fixture usage (mytest.py):
-```
+
+```python
 def test_foo(info):
-    assert info() == 'Information"    
+    assert info() == "Information"
 ```
-##Class way
+
+## Class way
 
 This way I found more preferable, because I have higher degree of freedom during class initialization. I can put all information I want inside class in very natural way.
 
 Plugin and fixture constuction and test call:
-```
+
+```python
 import pytest
 
 class MyPlugin(object):
@@ -75,15 +85,19 @@ myplugin = MyPlugin('information')
 
 pytest.main("mytest.py", plugins=[myplugin])
 ```
+
 Test is exactly the same as before (mytest.py):
-```
+
+```python
 def test_foo(info):
- assert info() == ‘Information”
+ assert info() == "Information"
 ```
-#More than one fixture
+
+# More than one fixture
 
 It is very easy to put any number of fixtures into a class:
-```
+
+```python
 import pytest
 
 class MyPlugin(object):
@@ -102,11 +116,23 @@ myplugin = MyPlugin('information')
 
 pytest.main("mytest.py", plugins=[myplugin])
 ```
+
 A bit upgraded version of the test accepts two fixtures (mytest.py):
-```
+
+```python
 def test_foo(info, length):
  assert len(info()) == length()
 ```
----
-date: 2016-11-12
 
+---
+date: 2016-12-09
+
+---
+tags:
+
+fixture
+invocation
+plugins
+
+---
+tldr: Load plugins dynamically by passing ``plugins`` to ``pytest.main()``
