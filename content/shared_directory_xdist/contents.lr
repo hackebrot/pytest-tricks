@@ -1,6 +1,10 @@
 name: Shared Directory Between Master and Workers With pytest-xdist
 ---
-author: nicoddemus
+author: Bruno Oliveira
+---
+twitter_handle: nicoddemus
+---
+github_user: nicoddemus
 ---
 content:
 
