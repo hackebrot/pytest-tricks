@@ -2,112 +2,21 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title type="text">pytest-tricks</title>
   <id>urn:uuid:7f0b50d2-7dc3-329b-b27b-5001002cb581</id>
-  <updated>2016-12-09T00:00:00Z</updated>
+  <updated>2016-11-12T00:00:00Z</updated>
   <link href="http://hackebrot.github.io/pytest-tricks/" />
   <link href="http://hackebrot.github.io/pytest-tricks/atom.xml" rel="self" />
   <author>
-    <name>Raphael Pierzina, pytest-dev team and contributors</name>
+    <name>Raphael Pierzina and pytest-dev team</name>
   </author>
   <subtitle type="text">Tips and Tricks for the Python Testing Tool</subtitle>
   <generator uri="https://github.com/ajdavis/lektor-atom" version="0.2">Lektor Atom Plugin</generator>
-  <entry xml:base="http://hackebrot.github.io/pytest-tricks/load_plugins_dynamically/">
-    <title type="text">Load pytest plugins dynamically</title>
-    <id>urn:uuid:aaf81e61-98b7-3a01-b2ca-40d470d59d2d</id>
-    <updated>2016-12-09T00:00:00Z</updated>
-    <link href="http://hackebrot.github.io/pytest-tricks/load_plugins_dynamically/" />
-    <author>
-      <name>George Shuklin</name>
-    </author>
-    <content type="html">&lt;p&gt;There is a way to pass fixtures from python code to tests via plugins argument of &lt;code&gt;pytest.main()&lt;/code&gt;.&lt;/p&gt;
-&lt;h1&gt;Creating fixture&lt;/h1&gt;
-&lt;p&gt;To create fixture we can use decorator &lt;code&gt;@pytest.fixture&lt;/code&gt;:&lt;/p&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&quot;nd&quot;&gt;@pytest.fixture&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;info&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;request&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&amp;quot;Information!&amp;quot;&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-&lt;h1&gt;Passing plugin to pytest&lt;/h1&gt;
-&lt;p&gt;To pass something to pytest-executed tests we can use plugin mechanism of pytest. (For not let says that &lt;code&gt;myplugin&lt;/code&gt; contains actual plugin, I’ll show later how to create it).&lt;/p&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;pytest&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;main&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;([&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;path_to_test&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&amp;#39;-v&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;plugins&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;myplugin&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;(Please not that &lt;code&gt;plugins&lt;/code&gt; takes a list of plugins, not plugin itself)&lt;/p&gt;
-&lt;h1&gt;Creating plugin&lt;/h1&gt;
-&lt;p&gt;There are two ways to create plugin:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;Use stand-alone module&lt;/li&gt;
-&lt;li&gt;Create class or other &lt;em&gt;dotted&lt;/em&gt; object (object with members accessible by dot: plugin.something).&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2&gt;Module way&lt;/h2&gt;
-&lt;p&gt;Use a separate file to contains plugin code:&lt;/p&gt;
-&lt;p&gt;myplugin.py:&lt;/p&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;pytest&lt;/span&gt;
-
-&lt;span class=&quot;nd&quot;&gt;@pytest.fixture&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;info&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;request&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&amp;quot;Information&amp;quot;&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;actual call of pytest:&lt;/p&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;myplugin&lt;/span&gt;
-
-&lt;span class=&quot;n&quot;&gt;pytest&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;main&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;([&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&amp;#39;mytest.py&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&amp;#39;-v&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;plugins&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;myplugin&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;Fixture usage (mytest.py):&lt;/p&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;test_foo&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;info&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;assert&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;info&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&amp;quot;Information&amp;quot;&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-&lt;h2&gt;Class way&lt;/h2&gt;
-&lt;p&gt;This way I found more preferable, because I have higher degree of freedom during class initialization. I can put all information I want inside class in very natural way.&lt;/p&gt;
-&lt;p&gt;Plugin and fixture constuction and test call:&lt;/p&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;pytest&lt;/span&gt;
-
-&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;MyPlugin&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;object&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;fm&quot;&gt;__init__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
-        &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;data&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;
-
-    &lt;span class=&quot;nd&quot;&gt;@pytest.fixture&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;info&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;request&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;
-
-&lt;span class=&quot;n&quot;&gt;myplugin&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;MyPlugin&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&amp;#39;information&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-
-&lt;span class=&quot;n&quot;&gt;pytest&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;main&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&amp;quot;mytest.py&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;plugins&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;myplugin&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;Test is exactly the same as before (mytest.py):&lt;/p&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;test_foo&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;info&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
- &lt;span class=&quot;k&quot;&gt;assert&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;info&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&amp;quot;Information&amp;quot;&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-&lt;h1&gt;More than one fixture&lt;/h1&gt;
-&lt;p&gt;It is very easy to put any number of fixtures into a class:&lt;/p&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;pytest&lt;/span&gt;
-
-&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;MyPlugin&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;object&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;fm&quot;&gt;__init__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
-        &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;data&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;
-
-&lt;span class=&quot;nd&quot;&gt;@pytest.fixture&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;info&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;request&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;
-
-&lt;span class=&quot;nd&quot;&gt;@pytest.fixture&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;length&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;request&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;len&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-
-&lt;span class=&quot;n&quot;&gt;myplugin&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;MyPlugin&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&amp;#39;information&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-
-&lt;span class=&quot;n&quot;&gt;pytest&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;main&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&amp;quot;mytest.py&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;plugins&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;myplugin&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;A bit upgraded version of the test accepts two fixtures (mytest.py):&lt;/p&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;test_foo&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;info&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;length&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
- &lt;span class=&quot;k&quot;&gt;assert&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;len&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;info&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;())&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;length&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-</content>
-  </entry>
   <entry xml:base="http://hackebrot.github.io/pytest-tricks/param_id_func/">
     <title type="text">ids for fixtures and parametrize</title>
     <id>urn:uuid:1bd554e3-af75-3403-991f-0beeb0c76672</id>
     <updated>2016-11-12T00:00:00Z</updated>
     <link href="http://hackebrot.github.io/pytest-tricks/param_id_func/" />
     <author>
-      <name>Raphael Pierzina</name>
+      <name>hackebrot</name>
     </author>
     <content type="html">&lt;h1&gt;parameters for tests&lt;/h1&gt;
 &lt;p&gt;&lt;strong&gt;pytest&lt;/strong&gt; comes with a handful of powerful tools to generate parameters for a
@@ -496,7 +405,7 @@ test_markers.py::test_template[cookiecutter-django-michaeljoseph] PASSED
     <updated>2016-07-10T00:00:00Z</updated>
     <link href="http://hackebrot.github.io/pytest-tricks/mark_parametrize_with_indirect/" />
     <author>
-      <name>Raphael Pierzina</name>
+      <name>hackebrot</name>
     </author>
     <content type="html">&lt;h1&gt;mark.parametrize&lt;/h1&gt;
 &lt;p&gt;In &lt;a href=&quot;http://hackebrot.github.io/pytest-tricks/create_tests_via_parametrization/&quot;&gt;Create Tests via Parametrization&lt;/a&gt; we've learned how to
@@ -699,7 +608,7 @@ rather than helper functions directly. This is also available from the
     <updated>2016-04-20T00:00:00Z</updated>
     <link href="http://hackebrot.github.io/pytest-tricks/customize_class_collection/" />
     <author>
-      <name>Bruno Oliveira</name>
+      <name>nicoddemus</name>
     </author>
     <content type="html">&lt;p&gt;By default py.test collects all classes which start with &lt;code&gt;Test&lt;/code&gt; that are found
 in &lt;code&gt;test*.py&lt;/code&gt; or &lt;code&gt;*test.py&lt;/code&gt; modules. This behavior can be configured using the
@@ -757,7 +666,7 @@ so classes prefixed with &lt;code&gt;Test&lt;/code&gt; will also be collected as
     <updated>2016-04-08T00:00:00Z</updated>
     <link href="http://hackebrot.github.io/pytest-tricks/show_pytest_warnings/" />
     <author>
-      <name>Raphael Pierzina</name>
+      <name>hackebrot</name>
     </author>
     <content type="html">&lt;p&gt;If you are migrating from unittest to pytest, you might encounter warnings when
 running your tests. No failures, no errors, but &lt;em&gt;pytest-warnings&lt;/em&gt;. This may be
@@ -880,7 +789,7 @@ help via &lt;code&gt;$ py.test --help&lt;/code&gt; and see the according section
     <updated>2016-02-28T00:00:00Z</updated>
     <link href="http://hackebrot.github.io/pytest-tricks/debug_test_failures/" />
     <author>
-      <name>Raphael Pierzina</name>
+      <name>hackebrot</name>
     </author>
     <content type="html">&lt;h1&gt;Tracebacks&lt;/h1&gt;
 &lt;p&gt;Pytest excels at helping you with test failures.  After running your tests via
@@ -936,7 +845,7 @@ after the first N failures.&lt;/p&gt;
     <updated>2016-02-23T00:00:00Z</updated>
     <link href="http://hackebrot.github.io/pytest-tricks/create_tests_via_parametrization/" />
     <author>
-      <name>Raphael Pierzina</name>
+      <name>hackebrot</name>
     </author>
     <content type="html">&lt;h1&gt;Use Case&lt;/h1&gt;
 &lt;p&gt;Imagine you want to write a test for a particular function, but for multiple input values.
@@ -1102,7 +1011,7 @@ test_foobar.py::test_is_open_source[pytest] PASSED
     <updated>2016-02-22T00:00:00Z</updated>
     <link href="http://hackebrot.github.io/pytest-tricks/shared_directory_xdist/" />
     <author>
-      <name>Bruno Oliveira</name>
+      <name>nicoddemus</name>
     </author>
     <content type="html">&lt;h1&gt;pytest-xdist&lt;/h1&gt;
 &lt;p&gt;&lt;a href=&quot;https://github.com/pytest-dev/pytest-xdist&quot;&gt;pytest-xdist&lt;/a&gt; is a plugin for
@@ -1165,7 +1074,7 @@ or a worker node.&lt;/p&gt;
     <updated>2016-02-21T00:00:00Z</updated>
     <link href="http://hackebrot.github.io/pytest-tricks/run_tests_using_fixture/" />
     <author>
-      <name>Raphael Pierzina</name>
+      <name>hackebrot</name>
     </author>
     <content type="html">&lt;h1&gt;Hooks&lt;/h1&gt;
 &lt;p&gt;The hook-based plugin architecture of pytest empowers you to heavily customize the test runners behavior. In this particular case we'll make use of the &lt;code&gt;pytest_collection_modifyitems&lt;/code&gt; hook. It is called after collection has been performed and hence provides access to the actual test items - objects which represent a single test.&lt;/p&gt;

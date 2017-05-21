@@ -14,49 +14,46 @@
     <div class="container page">
         
 <div class="jumbotron">
-    <h2>Create Tests via Parametrization</h2>
-</div>
-<div class="row">
-    <div class="col-md-6">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h3 class="panel-title"><strong>Post</strong></h3>
-            </div>
-            <div class="panel-body">
-                <dl>
-                    <dt>Date
-                    <dd>Feb 23, 2016
-                    <dt>Author
-                    <dd><a href="https://github.com/hackebrot">Raphael Pierzina</a>
-                    
-                        <dt>Tags
-                        <dd>fixture, ids, marker, parametrize</dl>
-            </div>
+    <div class="row">
+        <div class="col-md-6">
+            <h2>Create Tests via Parametrization</h2>
         </div>
     </div>
-    <div class="col-md-6">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h3 class="panel-title"><strong>TL;DR</strong></h3>
-            </div>
-            <div class="panel-body">
-                <p>Use <code>@pytest.fixture(params=[1, 2])</code> or <code>@pytest.mark.parametrize('a, b', [(1, 2), (3, 4)])</code> to create multiple tests</p>
-
-            </div>
+    <div class="row">
+        <div class="col-md-6">
+            <dl>
+                <dt>Date
+                <dd>Feb 23, 2016
+                <dt>Author
+                <dd><a href="https://twitter.com/hackebrot">@hackebrot</a>
+                
+                    <dt>Documentation
+                    <dd><a href="https://pytest.org/latest/parametrize.html">http://pytest.org/latest/</a>
+                
+                
+                    <dt>Tags
+                    <dd>fixture, ids, marker, parametrize
+                
+            </dl>
         </div>
-        
-        <a href="https://twitter.com/share" class="twitter-share-button" data-text="Create Tests via Parametrization" data-via="hackebrot" data-size="large" data-related="pytestdotorg" data-hashtags="python,pytest">Tweet</a>
-        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
-        
+        <div class="col-md-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title"><strong>TL;DR</strong></h3>
+                </div>
+                <div class="panel-body">
+                    <p>Use <code>@pytest.fixture(params=[1, 2])</code> or <code>@pytest.mark.parametrize('a, b', [(1, 2), (3, 4)])</code> to create multiple tests</p>
 
-        
-        <a href="https://twitter.com/hackebrot" class="twitter-follow-button" data-show-count="false" data-size="large">Follow @hackebrot</a>
-        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
-        
-
-        <a aria-label="Star hackebrot/pytest-tricks on GitHub" data-style="mega" href="https://github.com/hackebrot/pytest-tricks" class="github-button">Star</a>
-        <a aria-label="Fork hackebrot/pytest-tricks on GitHub" data-style="mega" href="https://github.com/hackebrot/pytest-tricks/fork" class="github-button">Fork</a>
-        <script async defer id="github-bjs" src="https://buttons.github.io/buttons.js"></script>
+                </div>
+            </div>
+            <a href="https://twitter.com/share" class="twitter-share-button" data-text="Create Tests via Parametrization" data-via="hackebrot" data-size="large" data-related="pytestdotorg" data-hashtags="python,pytest">Tweet</a>
+            <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+            <a href="https://twitter.com/hackebrot" class="twitter-follow-button" data-show-count="false" data-size="large">Follow @hackebrot</a>
+            <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+            <a aria-label="Star hackebrot/pytest-tricks on GitHub" data-style="mega" href="https://github.com/hackebrot/pytest-tricks" class="github-button">Star</a>
+            <a aria-label="Fork hackebrot/pytest-tricks on GitHub" data-style="mega" href="https://github.com/hackebrot/pytest-tricks/fork" class="github-button">Fork</a>
+            <script async defer id="github-bjs" src="https://buttons.github.io/buttons.js"></script>
+        </div>
     </div>
 </div>
 <p id="content"><h1>Use Case</h1>
@@ -246,7 +243,7 @@ test_foobar.py::test_is_open_source[pytest] PASSED
     <hr>
     <footer>
         <div class="container">
-            &copy; Copyright 2016-2017 by Raphael Pierzina, pytest-dev team and contributors.
+            &copy; Copyright 2016 by Raphael Pierzina and pytest-dev team.
             <br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
             <br />Built with <a href="https://www.getlektor.com/">Lektor</a>. Fork me on <a href="https://github.com/hackebrot/pytest-tricks/">GitHub</a>.
         </div>
