@@ -1,6 +1,10 @@
 name: Customize How py.test Collects Tests From Classes
 ---
-author: nicoddemus
+author: Bruno Oliveira
+---
+twitter_handle: nicoddemus
+---
+github_user: nicoddemus
 ---
 content:
 
