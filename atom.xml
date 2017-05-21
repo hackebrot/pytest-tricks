@@ -10,11 +10,11 @@
   </author>
   <subtitle type="text">Tips and Tricks for the Python Testing Tool</subtitle>
   <generator uri="https://github.com/ajdavis/lektor-atom" version="0.2">Lektor Atom Plugin</generator>
-  <entry xml:base="http://hackebrot.github.io/pytest-tricks/passing_fixtures_to_tests/">
+  <entry xml:base="http://hackebrot.github.io/pytest-tricks/load_plugins_dynamically/">
     <title type="text">Load pytest plugins dynamically</title>
-    <id>urn:uuid:b236ea1f-434c-3f2a-8ff1-d4f6e994d78c</id>
+    <id>urn:uuid:aaf81e61-98b7-3a01-b2ca-40d470d59d2d</id>
     <updated>2016-12-09T00:00:00Z</updated>
-    <link href="http://hackebrot.github.io/pytest-tricks/passing_fixtures_to_tests/" />
+    <link href="http://hackebrot.github.io/pytest-tricks/load_plugins_dynamically/" />
     <author>
       <name>George Shuklin</name>
     </author>
