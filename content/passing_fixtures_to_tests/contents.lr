@@ -1,0 +1,112 @@
+name: Passing fixtures to tests in pytest
+---
+author: amarao
+---
+content:
+
+There is a way to pass fixtures from python code to tests via plugins argument of `pytest.main()`.
+
+# Creating fixture
+
+To create fixture we can use decorator @pytest.fixture:
+
+```
+@pytest.fixture
+def info(request):
+    return "Information!"
+```
+
+# Passing plugin to pytest
+
+To pass something to pytest-executed tests we can use plugin mechanism of pytest. (For not let says that ‘myplugin’ contains actual plugin, I’ll show later how to create it).
+
+```
+pytest.main([path_to_test, '-v'], plugins=[myplugin])
+```
+
+(Please not that ‘plugins’ takes a list of plugins, not plugin itself)
+
+# Creating plugin
+
+There are two ways to create plugin:
+
+- Use stand-alone module
+- Create class or other ‘dotted’ object (object with members accessible by dot: plugin.something).
+
+## Module way
+
+Use a separate file to contains plugin code:
+
+myplugin.py:
+```
+import pytest
+
+@pytest.fixture
+def info(request):
+    return "Information"
+```
+actual call of pytest:
+```
+import myplugin
+pytest.main(['mytest.py', '-v'], plugins=[myplugin])
+```
+Fixture usage (mytest.py):
+```
+def test_foo(info):
+    assert info() == 'Information"    
+```
+##Class way
+
+This way I found more preferable, because I have higher degree of freedom during class initialization. I can put all information I want inside class in very natural way.
+
+Plugin and fixture constuction and test call:
+```
+import pytest
+
+class MyPlugin(object):
+    def __init__(self, data):
+        self.data = data
+
+    @pytest.fixture
+    def info(self, request):
+        return self.data
+
+myplugin = MyPlugin('information')
+
+pytest.main("mytest.py", plugins=[myplugin])
+```
+Test is exactly the same as before (mytest.py):
+```
+def test_foo(info):
+ assert info() == ‘Information”
+```
+#More than one fixture
+
+It is very easy to put any number of fixtures into a class:
+```
+import pytest
+
+class MyPlugin(object):
+    def __init__(self, data):
+        self.data = data
+
+@pytest.fixture
+    def info(self, request):
+        return self.data
+
+@pytest.fixture
+    def length(self, request):
+        return len(self.data)
+
+myplugin = MyPlugin('information')
+
+pytest.main("mytest.py", plugins=[myplugin])
+```
+A bit upgraded version of the test accepts two fixtures (mytest.py):
+```
+def test_foo(info, length):
+ assert len(info()) == length()
+```
+---
+date: 2016-11-12
+
