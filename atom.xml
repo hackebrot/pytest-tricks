@@ -16,7 +16,7 @@
     <updated>2016-11-12T00:00:00Z</updated>
     <link href="http://hackebrot.github.io/pytest-tricks/param_id_func/" />
     <author>
-      <name>hackebrot</name>
+      <name>Raphael Pierzina</name>
     </author>
     <content type="html">&lt;h1&gt;parameters for tests&lt;/h1&gt;
 &lt;p&gt;&lt;strong&gt;pytest&lt;/strong&gt; comes with a handful of powerful tools to generate parameters for a
@@ -405,7 +405,7 @@ test_markers.py::test_template[cookiecutter-django-michaeljoseph] PASSED
     <updated>2016-07-10T00:00:00Z</updated>
     <link href="http://hackebrot.github.io/pytest-tricks/mark_parametrize_with_indirect/" />
     <author>
-      <name>hackebrot</name>
+      <name>Raphael Pierzina</name>
     </author>
     <content type="html">&lt;h1&gt;mark.parametrize&lt;/h1&gt;
 &lt;p&gt;In &lt;a href=&quot;http://hackebrot.github.io/pytest-tricks/create_tests_via_parametrization/&quot;&gt;Create Tests via Parametrization&lt;/a&gt; we've learned how to
@@ -608,7 +608,7 @@ rather than helper functions directly. This is also available from the
     <updated>2016-04-20T00:00:00Z</updated>
     <link href="http://hackebrot.github.io/pytest-tricks/customize_class_collection/" />
     <author>
-      <name>nicoddemus</name>
+      <name>Bruno Oliveira</name>
     </author>
     <content type="html">&lt;p&gt;By default py.test collects all classes which start with &lt;code&gt;Test&lt;/code&gt; that are found
 in &lt;code&gt;test*.py&lt;/code&gt; or &lt;code&gt;*test.py&lt;/code&gt; modules. This behavior can be configured using the
@@ -666,7 +666,7 @@ so classes prefixed with &lt;code&gt;Test&lt;/code&gt; will also be collected as
     <updated>2016-04-08T00:00:00Z</updated>
     <link href="http://hackebrot.github.io/pytest-tricks/show_pytest_warnings/" />
     <author>
-      <name>hackebrot</name>
+      <name>Raphael Pierzina</name>
     </author>
     <content type="html">&lt;p&gt;If you are migrating from unittest to pytest, you might encounter warnings when
 running your tests. No failures, no errors, but &lt;em&gt;pytest-warnings&lt;/em&gt;. This may be
@@ -789,7 +789,7 @@ help via &lt;code&gt;$ py.test --help&lt;/code&gt; and see the according section
     <updated>2016-02-28T00:00:00Z</updated>
     <link href="http://hackebrot.github.io/pytest-tricks/debug_test_failures/" />
     <author>
-      <name>hackebrot</name>
+      <name>Raphael Pierzina</name>
     </author>
     <content type="html">&lt;h1&gt;Tracebacks&lt;/h1&gt;
 &lt;p&gt;Pytest excels at helping you with test failures.  After running your tests via
@@ -845,7 +845,7 @@ after the first N failures.&lt;/p&gt;
     <updated>2016-02-23T00:00:00Z</updated>
     <link href="http://hackebrot.github.io/pytest-tricks/create_tests_via_parametrization/" />
     <author>
-      <name>hackebrot</name>
+      <name>Raphael Pierzina</name>
     </author>
     <content type="html">&lt;h1&gt;Use Case&lt;/h1&gt;
 &lt;p&gt;Imagine you want to write a test for a particular function, but for multiple input values.
@@ -1011,7 +1011,7 @@ test_foobar.py::test_is_open_source[pytest] PASSED
     <updated>2016-02-22T00:00:00Z</updated>
     <link href="http://hackebrot.github.io/pytest-tricks/shared_directory_xdist/" />
     <author>
-      <name>nicoddemus</name>
+      <name>Bruno Oliveira</name>
     </author>
     <content type="html">&lt;h1&gt;pytest-xdist&lt;/h1&gt;
 &lt;p&gt;&lt;a href=&quot;https://github.com/pytest-dev/pytest-xdist&quot;&gt;pytest-xdist&lt;/a&gt; is a plugin for
@@ -1074,7 +1074,7 @@ or a worker node.&lt;/p&gt;
     <updated>2016-02-21T00:00:00Z</updated>
     <link href="http://hackebrot.github.io/pytest-tricks/run_tests_using_fixture/" />
     <author>
-      <name>hackebrot</name>
+      <name>Raphael Pierzina</name>
     </author>
     <content type="html">&lt;h1&gt;Hooks&lt;/h1&gt;
 &lt;p&gt;The hook-based plugin architecture of pytest empowers you to heavily customize the test runners behavior. In this particular case we'll make use of the &lt;code&gt;pytest_collection_modifyitems&lt;/code&gt; hook. It is called after collection has been performed and hence provides access to the actual test items - objects which represent a single test.&lt;/p&gt;
