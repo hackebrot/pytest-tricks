@@ -15,7 +15,7 @@ clean-lektor: ## Remove lektor build artifacts
 
 
 .PHONY: clean
-clean: clean-pyc ## Remove all file artifacts
+clean: clean-pyc clean-lektor ## Remove all file artifacts
 
 
 .PHONY: install-webpack
