@@ -35,8 +35,12 @@
         </div>
         <a href="https://twitter.com/share" class="twitter-share-button" data-text="{{this.name}}" data-via="{{this.twitter_handle}}" data-size="large" data-related="pytestdotorg" data-hashtags="python,pytest">Tweet</a>
         <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+
+        {% if this.twitter_handle %}
         <a href="https://twitter.com/{{this.twitter_handle}}" class="twitter-follow-button" data-show-count="false" data-size="large">Follow @{{this.twitter_handle}}</a>
         <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+        {% endif %}
+
         <a aria-label="Star hackebrot/pytest-tricks on GitHub" data-style="mega" href="https://github.com/hackebrot/pytest-tricks" class="github-button">Star</a>
         <a aria-label="Fork hackebrot/pytest-tricks on GitHub" data-style="mega" href="https://github.com/hackebrot/pytest-tricks/fork" class="github-button">Fork</a>
         <script async defer id="github-bjs" src="https://buttons.github.io/buttons.js"></script>
