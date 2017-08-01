@@ -1,0 +1,152 @@
+name: Fixtures as class attributes
+---
+author: Sergey Kraynev
+---
+github_user: skraynev
+---
+content:
+
+# Use Case
+Migration from unittest approach with ``SetUp`` methods to pytest fixtures can
+be really difficult, because user have to specify fixtures parameters in each
+test method in class. Also there is some issue with ``flake8`` checks about
+unknown methods in parameters (it's minor issue, but it's still exist).
+Current note demostrate alternative way for painless migration, with the
+following benefits:
+
+- Missing fixture names in test signature. (There are no changes in tests).
+- Accessing fixtures as a class attributes. (No changes in tests, if some
+  variables were defined in ``SetUp`` method).
+- Always default state for fixtures, for each test, like it was done by using
+  ``SetUp`` method.
+
+# Solutions
+The main feature used to solve this issue is option for ``@pytest.fixture``
+method called as ``autouse=True``. The detailed explanation is availbale in
+official documentation, but shortly: it allows to execute fixture before each
+test or test method in the current case.
+
+## Approach one (with decorator)
+The first approach requires creation new decorator for test classes.
+This decorator uses another supporting method for injecting fixture in
+decorated class. This fixture will be called before each test, because uses
+option ``autouse=True``.
+Thank you ``Bruno Oliveira``(nicoddemus) for the help with creation this
+solution.
+
+```python
+from functools import partial
+
+import pytest
+
+
+def _inject(cls, names):
+    @pytest.fixture(autouse=True)
+    def auto_injector_fixture(self, request):
+        for name in names:
+            setattr(self, name, request.getfixturevalue(name))
+
+    cls._auto_injector_fixture = auto_injector_fixture
+    return cls
+
+
+def auto_inject_fixtures(*names):
+    return partial(_inject, names=names)
+
+
+@auto_inject_fixtures('tmpdir')
+class Test:
+    def test_foo(self):
+        assert self.tmpdir.isdir()
+```
+
+One important note, that it also works for unittest subclasses:
+
+```python
+@auto_inject_fixtures('tmpdir')
+class Test2(unittest.TestCase):
+    def test_foo(self):
+        self.assertTrue(self.tmpdir.isdir())
+```
+
+As it was demonstrated fixtures mentioned in decorator now is available in test
+methods as class attributes.
+
+## Approach two (define as attributes)
+First approach perfectly works and can be used. However what about situation,
+when user have more then 5 or 10 classes and they all inherited from main
+**TestBase** class?
+The answer is simple: take th first approach and modify it to do all 'hard'
+work with decorators automatically.
+
+First of all put the great fixture with ``autouse=True`` to the TestBase class.
+As result it will be available in all child classes automatically.
+A second step is to get the a list of fixtures. In the ideal world they
+will be the same for all classes and tests, but in reality it will be
+different for each class. It can be fixed by defining a attribute called:
+**fixture_names**. It's a tuple with fixture names used in test methods of
+child classes. The example below demostrates ideas mentioned before.
+
+```python
+class TestBase(object):
+
+    fixture_names = ()
+
+    @pytest.fixture(autouse=True)
+    def auto_injector_fixture(self, request):
+        names = self.fixture_names
+        for name in names:
+            setattr(self, name, request.getfixturevalue(name))
+
+
+class MyTest(TestBase):
+    fixture_names = ('tmpdir', 'random')
+
+    def test_bar(self):
+        assert self.tmpdir.isdir()
+        assert 5 == len(random.string(5))
+```
+**NOTE: Mentioned example also is compatible with unittests subclasses.**
+
+Last example can be improved for scenario tests. However the guide mentioned
+in the official documentation:
+(https://docs.pytest.org/en/latest/example/parametrize.html?highlight=testscenario#a-quick-port-of-testscenarios)
+is not compatiable with unittests subclasses.
+
+```python
+class TestBase(object):
+
+    fixture_names = ()
+
+    @pytest.fixture(autouse=True)
+    def auto_injector_fixture(self, request):
+        if hasattr(self, 'scenarios'):
+            names = self.scenarios[0][1].keys()
+        else:
+            names = self.fixture_names
+        for name in names:
+            setattr(self, name, request.getfixturevalue(name))
+
+
+class MyTestScenario(TestBase):
+    scenarios = [
+        (test_one, dict(val=1, res=5)),
+        (test_two, dict(val=2, res=10))
+    ]
+
+    def test_baz(self):
+        assert self.res == self.val * 5
+```
+
+---
+date: 2017-08-13
+---
+tags:
+
+fixture
+autouse
+attributes
+class
+ids
+---
+tldr: Work with pytest fixtures as with class attributes
