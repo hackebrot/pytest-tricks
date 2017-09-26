@@ -9,4 +9,4 @@ lektor-atom = 0.2
 lektor-webpack-support = 0.3
 
 [servers.ghpages-https]
-target = ghpages+https://hackebrot/pytest-tricks.git
+target = ghpages+https://hackebrot/pytest-tricks
