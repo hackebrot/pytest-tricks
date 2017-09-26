@@ -1,0 +1,203 @@
+<!doctype html>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../static/gen/styles.css?h=deb80edd">
+<script type=text/javascript src="../static/gen/app.js?h=d668e5da" charset="utf-8"></script>
+<link rel="stylesheet" href="../static/pygments.css">
+<title>Fixtures as class attributes (2017) — pytest-tricks</title>
+<body>
+    <header>
+        <div class="container">
+            <h1><a href="../">pytest-tricks</a></h1>
+        </div>
+    </header>
+    <hr>
+    <div class="container page">
+        
+<div class="jumbotron">
+    <h2>Fixtures as class attributes</h2>
+</div>
+<div class="row">
+    <div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title"><strong>Post</strong></h3>
+            </div>
+            <div class="panel-body">
+                <dl>
+                    <dt>Date
+                    <dd>Aug 13, 2017
+                    <dt>Author
+                    <dd><a href="https://github.com/skraynev">Sergey Kraynev</a>
+                    
+                        <dt>Tags
+                        <dd>attributes, autouse, class, fixture, ids</dl>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title"><strong>TL;DR</strong></h3>
+            </div>
+            <div class="panel-body">
+                <p>Easier migration of unittest-based tests to pytest with fixtures</p>
+
+            </div>
+        </div>
+        
+        <a href="https://twitter.com/share" class="twitter-share-button" data-text="Fixtures as class attributes by Sergey Kraynev" data-size="large" data-related="pytestdotorg" data-hashtags="python,pytest">Tweet</a>
+        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+        
+
+        
+
+        <a aria-label="Star hackebrot/pytest-tricks on GitHub" data-style="mega" href="https://github.com/hackebrot/pytest-tricks" class="github-button">Star</a>
+        <a aria-label="Fork hackebrot/pytest-tricks on GitHub" data-style="mega" href="https://github.com/hackebrot/pytest-tricks/fork" class="github-button">Fork</a>
+        <script async defer id="github-bjs" src="https://buttons.github.io/buttons.js"></script>
+    </div>
+</div>
+<p id="content"><h1>Use Case</h1>
+<p>Migration from unittest-style tests with <code>setUp</code> methods to pytest fixtures can
+be laborious, because users have to specify fixtures parameters in each
+test method in class. Also <code>flake8</code> checks will complain about
+unknown methods in parameters (it's minor issue, but it's still exists).
+This article demonstrates alternatives way for an easier migration, with the
+following benefits:</p>
+<ul>
+<li>No need to specify fixture names in tests signatures. (No changes to tests required).</li>
+<li>Accessing fixtures as instance attributes. (No changes to tests required).</li>
+</ul>
+<h1>Solutions</h1>
+<p>The main feature used to solve this issue is <em>autouse</em> fixtures.
+The detailed explanation is available in
+<a href="https://docs.pytest.org/en/latest/fixture.html?highlight=autouse#autouse-fixtures-xunit-setup-on-steroids">official documentation</a>,
+but shortly: it allows to execute fixture before each test or test method in the current case.</p>
+<h2>Approach one (with decorator)</h2>
+<p>The first approach uses a new decorator for test classes.
+This decorator injects an autouse fixture in the decorated class; this fixture
+will then be called automatically before each test.
+Thanks to <code>Bruno Oliveira</code>(nicoddemus) for the help with creation this
+solution.</p>
+<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+
+<span class="kn">import</span> <span class="nn">pytest</span>
+
+
+<span class="k">def</span> <span class="nf">_inject</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">names</span><span class="p">):</span>
+    <span class="nd">@pytest.fixture</span><span class="p">(</span><span class="n">autouse</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">auto_injector_fixture</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">request</span><span class="o">.</span><span class="n">getfixturevalue</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+
+    <span class="bp">cls</span><span class="o">.</span><span class="n">__auto_injector_fixture</span> <span class="o">=</span> <span class="n">auto_injector_fixture</span>
+    <span class="k">return</span> <span class="bp">cls</span>
+
+
+<span class="k">def</span> <span class="nf">auto_inject_fixtures</span><span class="p">(</span><span class="o">*</span><span class="n">names</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">partial</span><span class="p">(</span><span class="n">_inject</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="n">names</span><span class="p">)</span>
+
+
+<span class="nd">@auto_inject_fixtures</span><span class="p">(</span><span class="s1">&#39;tmpdir&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">Test</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">test_foo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span><span class="o">.</span><span class="n">isdir</span><span class="p">()</span>
+</pre></div>
+<p>More importantly, this also works for unittest subclasses:</p>
+<div class="highlight"><pre><span></span><span class="nd">@auto_inject_fixtures</span><span class="p">(</span><span class="s1">&#39;tmpdir&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">Test2</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">test_foo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span><span class="o">.</span><span class="n">isdir</span><span class="p">())</span>
+</pre></div>
+<p>As it was demonstrated fixtures names passed to the decorator are now available to test methods as instance attributes.</p>
+<h2>Approach two (define as attributes)</h2>
+<p>Consider the scenario where user has more then 5 or 10 classes and they all inherited from a main <code>TestBase</code> class?
+The answer is to take the first approach and modify it to do all <em>hard</em>
+work with decorators automatically.</p>
+<p>First put the autouse fixture in the <code>TestBase</code> class, which
+will make it available to all child classes automatically.
+A second step is to declare a list of fixtures that will be injected in each
+test class. In the ideal world they
+will be the same for all classes and tests, but in reality it will be
+different for each class. Define a tuple <code>fixture_names</code> in each test class with the names of the fixtures that should be injected for each test.
+The example below demostrates ideas mentioned before.</p>
+<div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">TestBase</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+
+    <span class="n">fixture_names</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="nd">@pytest.fixture</span><span class="p">(</span><span class="n">autouse</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">auto_injector_fixture</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fixture_names</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">request</span><span class="o">.</span><span class="n">getfixturevalue</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+
+
+<span class="k">class</span> <span class="nc">MyTest</span><span class="p">(</span><span class="n">TestBase</span><span class="p">):</span>
+    <span class="n">fixture_names</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;tmpdir&#39;</span><span class="p">,</span> <span class="s1">&#39;random&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">test_bar</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span><span class="o">.</span><span class="n">isdir</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">string</span><span class="p">(</span><span class="mi">5</span><span class="p">)),</span> <span class="mi">5</span><span class="p">)</span>
+</pre></div>
+<p>Important to mention that the approach above also work for pytest-style classes (subclassing only <code>object</code>).</p>
+<p>Last example can be improved for scenario tests. However the guide mentioned
+in the <a href="https://docs.pytest.org/en/latest/example/parametrize.html?highlight=testscenario#a-quick-port-of-testscenarios">official documentation</a> is not compatible with unittests subclasses.</p>
+<div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">TestBase</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="n">fixture_names</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="nd">@pytest.fixture</span><span class="p">(</span><span class="n">autouse</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">auto_injector_fixture</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;scenarios&#39;</span><span class="p">):</span>
+            <span class="n">names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scenarios</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fixture_names</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">request</span><span class="o">.</span><span class="n">getfixturevalue</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+
+
+<span class="k">class</span> <span class="nc">MyTestScenario</span><span class="p">(</span><span class="n">TestBase</span><span class="p">):</span>
+    <span class="n">scenarios</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="n">test_one</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">val</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">res</span><span class="o">=</span><span class="mi">5</span><span class="p">)),</span>
+        <span class="p">(</span><span class="n">test_two</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">val</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">res</span><span class="o">=</span><span class="mi">10</span><span class="p">))</span>
+    <span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">test_baz</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">res</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">val</span> <span class="o">*</span> <span class="mi">5</span>
+</pre></div>
+</p>
+<div class="comment-box">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title"><strong>COMMENTS</strong></h3>
+        </div>
+        <div class="panel-body">
+            <div class="comments">
+<div id="disqus_thread"></div>
+<script>
+  var disqus_config = function() { this.page.identifier = "/fixtures_as_class_attributes"; this.page.url = "http://hackebrot.github.io/pytest-tricks/fixtures_as_class_attributes/"; };
+  (function() {
+    var d = document, s = d.createElement('script');
+    s.src = '//pytest-tricks.disqus.com/embed.js';
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+  })();
+</script>
+<noscript>
+  Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript"
+    rel="nofollow">comments powered by Disqus.</a>
+</noscript>
+</div>
+        </div>
+    </div>
+</div>
+
+    </div>
+    <hr>
+    <footer>
+        <div class="container">
+            &copy; Copyright 2016-2017 by Raphael Pierzina, pytest-dev team and contributors.
+            <br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
+            <br />Built with <a href="https://www.getlektor.com/">Lektor</a>. Fork me on <a href="https://github.com/hackebrot/pytest-tricks/">GitHub</a>.
+        </div>
+    </footer>
+</body>
