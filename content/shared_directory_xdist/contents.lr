@@ -36,16 +36,26 @@ def pytest_unconfigure(config):
         shutil.rmtree(config.shared_directory)
 
 
+def workerinput(node):
+    """Get node.workerinput (xdist 2+), node.slaveinput (xdist <2), or None."""
+    for attr in ['workerinput', 'slaveinput']:
+        try:
+            return getattr(node, attr)
+        except AttributeError:
+            continue
+    return None
+
+
 def pytest_configure_node(node):
     """xdist hook"""
-    node.slaveinput['shared_dir'] = node.config.shared_directory
+    workerinput(node)['shared_dir'] = node.config.shared_directory
 
 
 def is_master(config):
     """True if the code running the given pytest.config object is running in a xdist master
     node or not running xdist at all.
     """
-    return not hasattr(config, 'slaveinput')
+    return not workerinput(config)
 
 
 @pytest.fixture
@@ -56,11 +66,11 @@ def shared_directory(request):
     if is_master(request.config):
         return request.config.shared_directory
     else:
-        return request.config.slaveinput['shared_dir']
+        return workerinput(request.config)['shared_dir']
 
 ```
 
-Anything put in `node.slaveinput` dictionary during the `pytest_configure_node`
+Anything put in `node.workerinput` dictionary during the `pytest_configure_node`
 xdist hook can be accessed by the worker nodes later. You can put any
 simple builtin type, like lists, strings, tuples, etc.
 
@@ -83,4 +93,4 @@ hook
 fixture
 xdist
 ---
-tldr: Use `request.config.slaveinput` to send information from master to worker nodes in pytest-xdist
+tldr: Use `request.config.workerinput` to send information from master to worker nodes in pytest-xdist
